@@ -1,0 +1,15 @@
+/Users/jinjoolee/Projects/EcoBot/bin/Debug/net5.0/EcoBot.deps.json
+/Users/jinjoolee/Projects/EcoBot/bin/Debug/net5.0/EcoBot.runtimeconfig.json
+/Users/jinjoolee/Projects/EcoBot/bin/Debug/net5.0/EcoBot.runtimeconfig.dev.json
+/Users/jinjoolee/Projects/EcoBot/bin/Debug/net5.0/EcoBot.dll
+/Users/jinjoolee/Projects/EcoBot/bin/Debug/net5.0/ref/EcoBot.dll
+/Users/jinjoolee/Projects/EcoBot/bin/Debug/net5.0/EcoBot.pdb
+/Users/jinjoolee/Projects/EcoBot/obj/Debug/net5.0/EcoBot.csproj.AssemblyReference.cache
+/Users/jinjoolee/Projects/EcoBot/obj/Debug/net5.0/EcoBot.GeneratedMSBuildEditorConfig.editorconfig
+/Users/jinjoolee/Projects/EcoBot/obj/Debug/net5.0/EcoBot.AssemblyInfoInputs.cache
+/Users/jinjoolee/Projects/EcoBot/obj/Debug/net5.0/EcoBot.AssemblyInfo.cs
+/Users/jinjoolee/Projects/EcoBot/obj/Debug/net5.0/EcoBot.csproj.CoreCompileInputs.cache
+/Users/jinjoolee/Projects/EcoBot/obj/Debug/net5.0/EcoBot.dll
+/Users/jinjoolee/Projects/EcoBot/obj/Debug/net5.0/ref/EcoBot.dll
+/Users/jinjoolee/Projects/EcoBot/obj/Debug/net5.0/EcoBot.pdb
+/Users/jinjoolee/Projects/EcoBot/obj/Debug/net5.0/EcoBot.genruntimeconfig.cache
