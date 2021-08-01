@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "HwoZDVaS1nEL79MdntmR72dEj3OvFqsymiN962QdzO2sZIKovscq1NELtFJ45DqPtejCr67lvWMOC9cwnjAa1w==",
+  "dgSpecHash": "WUG/sHfAIIu96xetDFE0188cE7p4Xh9qBX8DVEzcL8AV555rhBvwULLidnhh+AWObT73eBiSEdFfULH3YglJ5Q==",
   "success": true,
-  "projectFilePath": "/Users/jinjoolee/Projects/EcoBot/EcoBot.csproj",
+  "projectFilePath": "C:\\Users\\관리자\\Source\\Repos\\EcoBot\\EcoBot.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
