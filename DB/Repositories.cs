@@ -16,7 +16,7 @@ namespace EcoBot.DB
 
             CallDb callDb = new CallDb();
 
-            var jobData = callDb.Select("SELECT * FROM job WHERE id = " + sellerId);
+            var jobData = callDb.Select("SELECT * FROM job WHERE seller_id = " + sellerId);
 
             foreach (DataRow data in jobData.Tables[0].Rows)
             {
@@ -42,15 +42,15 @@ namespace EcoBot.DB
 
             for (int i = 0; i < productLists.Count; i++)
             {
-                query += "(" + productLists[i].thumbnail + "," + productLists[i].productUrl + "," + productLists[i].seller_id + ")";
-                if (i < productLists.Count)
+                query += "('" + productLists[i].thumbnail + "','" + productLists[i].productUrl + "'," + productLists[i].seller_id + ")";
+                if (i < productLists.Count-1)
                 {
                     query += ",";
                 }
 
             }
 
-            return callDb.Insert("query");
+            return callDb.Insert(query);
         }
         public List<ProductList> GetProductListsById(int id)
         {

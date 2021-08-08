@@ -50,49 +50,45 @@ namespace EcoBot.Crawling
             using (IWebDriver driver = new ChromeDriver())
             {
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-                for (int i = 1; ; i++)
+
+                try
                 {
-                    try
+                    driver.Url = url;
+                    driver.Navigate();
+                    Thread.Sleep(300);
+                    string productNodeXpath = "//*[@id='container_w202004085670d4034bd2d']/div";
+
+                    HtmlDocument document = new HtmlDocument();
+                    document.LoadHtml(driver.PageSource);
+
+                    var products = document.DocumentNode.SelectNodes(productNodeXpath);
+
+                    ProductList product = new ProductList();
+                    for (int j = 0; j < products.Count; j++)
                     {
-                        driver.Url = url;
-                        driver.Navigate();
-                        Thread.Sleep(300);
-                        string productNodeXpath = "//*[@id='w201808105b6c62847f539']/div/div";
-
-                        HtmlDocument document = new HtmlDocument();
-                        document.LoadHtml(driver.PageSource);
-
-                        var products = document.DocumentNode.SelectNodes(productNodeXpath);
-
-                        if (products == null)
+                        product = new ProductList()
                         {
-                            break;
-                        }
+                            thumbnail = products[j].SelectNodes("//img[@class='_org_img org_img _lazy_img']")[j].GetAttributeValue("src", ""),
+                            productUrl = "https://repac.co.kr" + products[j].SelectNodes("//div[@class='item-wrap']/a")[j].GetAttributeValue("href", ""),
+                            seller_id = 1,
 
-                        ProductList product = new ProductList();
-                        for (int j = 0; j < products.Count; j++)
-                        {
-                            product = new ProductList()
-                            {
-                                thumbnail = products[j].SelectNodes("//img")[j].GetAttributeValue("src", ""),
-                                productUrl = "https://re-ground.co.kr/" + products[j].SelectNodes("//div/a")[j].GetAttributeValue("href", ""),
-                                seller_id = 1,
+                        };
 
-                            };
-
-                            productList.Add(product);
-                        }
-                    }
-                    catch
-                    {
-                        continue;
+                        productList.Add(product);
                     }
                 }
+                catch
+                {
+
+                }
+
             }
 
             // 저장
             (new Repositories()).AddProductList(productList);
         }
+
+
     }
 }
 
