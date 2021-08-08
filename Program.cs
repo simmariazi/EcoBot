@@ -1,4 +1,5 @@
 ﻿using System;
+using EcoBot.Crawling;
 
 namespace EcoBot
 {
@@ -6,7 +7,9 @@ namespace EcoBot
     {
         static void Main(string[] args)
         {
+            ProductListCrawler productListCrawler = new ProductListCrawler();
             
+
         }
     }
 }

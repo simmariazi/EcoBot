@@ -32,26 +32,19 @@ namespace EcoBot.Crawling
         //잡 테이블에 있는 데이터불러오기
 
         //잡에있는 데이터 중 리팩의 url만 불러오ㅑ
-        public string RepacUrl(string url)
+        public void RepacUrl()
         {
             //url = job의 셀러아이디 1 
             // 잡 가져오기
             List<Job> jobs = (new Repositories()).GetJobs(1);
 
             ProductListCrawler getRepac = new ProductListCrawler();
-            {
 
-                
-                //for (int i = 0; i < job.Count; i++)
-                //{
-                //    if (job.seller_id == 1)
-                //    {
-                        
-                //    }
-                //}
+            for (int i = 0; i < jobs.Count; i++)
+            {
+                getRepac.GetRepacUrl(jobs[i].url);
             }
-            getRepac.GetRepacUrl(url);
-            return url;
+
         }
 
 
@@ -61,60 +54,61 @@ namespace EcoBot.Crawling
 
 
 
+        public void GetRepacUrl(string url)
+        {
 
 
-
-            public void GetRepacUrl(string url)
+            List<ProductList> productList = new List<ProductList>();
+            using (IWebDriver driver = new ChromeDriver())
             {
-
-
-                List<ProductList> productList = new List<ProductList>();
-                using (IWebDriver driver = new ChromeDriver())
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+                for (int i = 1; ; i++)
                 {
-                    driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-                    for (int i = 1; ; i++)
+                    try
                     {
-                        try
+                        driver.Url = url;
+                        driver.Navigate();
+                        Thread.Sleep(300);
+                        string productNodeXpath = "//*[@id='w201808105b6c62847f539']/div/div";
+
+                        HtmlDocument document = new HtmlDocument();
+                        document.LoadHtml(driver.PageSource);
+
+                        var products = document.DocumentNode.SelectNodes(productNodeXpath);
+
+                        if (products == null)
                         {
-                            driver.Url = url;
-                            driver.Navigate();
-                            Thread.Sleep(300);
-                            string productNodeXpath = "//*[@id='w201808105b6c62847f539']/div/div";
-
-                            HtmlDocument document = new HtmlDocument();
-                            document.LoadHtml(driver.PageSource);
-
-                            var products = document.DocumentNode.SelectNodes(productNodeXpath);
-
-                            if (products == null)
-                            {
-                                break;
-                            }
-
-                            ProductList product = new ProductList();
-                            for (int j = 0; j < products.Count; j++)
-                            {
-                                product = new ProductList()
-                                {
-                                    Thumnail = products[j].SelectNodes("//img")[j].GetAttributeValue("src", ""),
-                                    ProductUrl = "https://re-ground.co.kr/" + products[j].SelectNodes("//div/a")[j].GetAttributeValue("href", ""),
-
-                                };
-
-                                productList.Add(product);
-                            }
+                            break;
                         }
-                        catch
+
+                        ProductList product = new ProductList();
+                        for (int j = 0; j < products.Count; j++)
                         {
-                            continue;
+                            product = new ProductList()
+                            {
+                                Thumnail = products[j].SelectNodes("//img")[j].GetAttributeValue("src", ""),
+                                ProductUrl = "https://re-ground.co.kr/" + products[j].SelectNodes("//div/a")[j].GetAttributeValue("href", ""),
+
+                            };
+
+                            productList.Add(product);
                         }
                     }
-
+                    catch
+                    {
+                        continue;
+                    }
                 }
-            }
 
+            }
         }
 
-
+        internal static void GetRepacUrl()
+        {
+            throw new NotImplementedException();
+        }
     }
+
+
+}
 

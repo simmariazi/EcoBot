@@ -31,5 +31,6 @@ namespace EcoBot.DB
 
             return jobs;
         }
+
     }
 }
