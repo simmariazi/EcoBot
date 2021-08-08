@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EcoBot.Model;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -9,15 +10,26 @@ namespace EcoBot.DB
 {
     public class Repositories
     {
-        public List<string> GetSellerUrl(int sellerId)
+        public List<Job> GetJobs(int sellerId)
         {
-            List<string> sellerUrls = new List<string>();
+            List<Job> jobs = new List<Job>();
 
             CallDb callDb = new CallDb();
 
-            callDb.Select("SELECT seller_url FROM seller WHERE id = " + sellerId);
+            var jobData = callDb.Select("SELECT seller_url FROM seller WHERE id = " + sellerId);
 
-            return sellerUrls;
+            foreach (DataRow data in jobData.Tables[0].Rows)
+            {
+                jobs.Add(new Job
+                {
+                    id = int.Parse(data["id"].ToString()),
+                    seller_id = int.Parse(data["seller_id"].ToString()),
+                    category_id = int.Parse(data["category_id"].ToString()),
+                    url = data["url"].ToString()
+                });
+            }
+
+            return jobs;
         }
     }
 }

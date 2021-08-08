@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using EcoBot.DB;
 using EcoBot.Model;
 using HtmlAgilityPack;
 using MySql.Data.MySqlClient;
@@ -30,50 +31,13 @@ namespace EcoBot.Crawling
 
         //잡 테이블에 있는 데이터불러오기
 
-        public IEnumerable<Job> GetJobList()
-        {
-
-            DataSet dsResult = new DataSet();
-            // 데이터를 불러온다
-            // DB 연결
-            // DB 연결 정보
-            string connectionString = "Server=121.166.4.186;Port=3152;Database=eco_bot;Uid=root;Pwd=rladndwo3";
-            using (MySqlConnection connection = new MySqlConnection(connectionString))
-            {
-                connection.Open();
-
-
-                MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM job", connection);
-
-                da.Fill(dsResult);
-
-
-            }
-            List<Job> job = new List<Job>();
-            foreach (DataRow data in dsResult.Tables[0].Rows)
-            {
-                job.Add(new Job
-                {
-                    id = int.Parse(data["id"].ToString()),
-                    seller_id = int.Parse(data["seller_id"].ToString()),
-                    category_id = int.Parse(data["category_id"].ToString()),
-                    url = data["url"].ToString(),
-
-
-
-                });
-            }
-
-
-            return job;
-        }
-
-
         //잡에있는 데이터 중 리팩의 url만 불러오ㅑ
         public string RepacUrl(string url)
         {
             //url = job의 셀러아이디 1 
-            
+            // 잡 가져오기
+            List<Job> jobs = (new Repositories()).GetJobs(1);
+
             ProductListCrawler getRepac = new ProductListCrawler();
             {
 
