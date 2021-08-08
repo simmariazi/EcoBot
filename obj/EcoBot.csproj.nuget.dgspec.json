@@ -42,6 +42,10 @@
               "target": "Package",
               "version": "[1.11.34, )"
             },
+            "MySql.Data": {
+              "target": "Package",
+              "version": "[8.0.26, )"
+            },
             "Selenium.WebDriver": {
               "target": "Package",
               "version": "[3.141.0, )"
