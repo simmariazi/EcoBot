@@ -38,11 +38,9 @@ namespace EcoBot.Crawling
             // 잡 가져오기
             List<Job> jobs = (new Repositories()).GetJobs(1);
 
-            ProductListCrawler getRepac = new ProductListCrawler();
-
             for (int i = 0; i < jobs.Count; i++)
             {
-                getRepac.GetRepacUrl(jobs[i].url);
+                GetRepacUrl(jobs[i].url);
             }
         }
 
