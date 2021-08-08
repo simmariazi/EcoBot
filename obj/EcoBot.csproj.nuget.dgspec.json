@@ -1,31 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "D:\\01.Project\\Dotnet\\simmariazi\\EcoBot\\EcoBot.csproj": {}
+    "/Users/jinjoolee/EcoBot/EcoBot.csproj": {}
   },
   "projects": {
-    "D:\\01.Project\\Dotnet\\simmariazi\\EcoBot\\EcoBot.csproj": {
+    "/Users/jinjoolee/EcoBot/EcoBot.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\01.Project\\Dotnet\\simmariazi\\EcoBot\\EcoBot.csproj",
+        "projectUniqueName": "/Users/jinjoolee/EcoBot/EcoBot.csproj",
         "projectName": "EcoBot",
-        "projectPath": "D:\\01.Project\\Dotnet\\simmariazi\\EcoBot\\EcoBot.csproj",
-        "packagesPath": "C:\\Users\\hawoo\\.nuget\\packages\\",
-        "outputPath": "D:\\01.Project\\Dotnet\\simmariazi\\EcoBot\\obj\\",
+        "projectPath": "/Users/jinjoolee/EcoBot/EcoBot.csproj",
+        "packagesPath": "/Users/jinjoolee/.nuget/packages/",
+        "outputPath": "/Users/jinjoolee/EcoBot/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Microsoft\\Xamarin\\NuGet\\"
-        ],
         "configFilePaths": [
-          "C:\\Users\\hawoo\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "/Users/jinjoolee/.config/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net5.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -43,6 +37,20 @@
       "frameworks": {
         "net5.0": {
           "targetAlias": "net5.0",
+          "dependencies": {
+            "HtmlAgilityPack": {
+              "target": "Package",
+              "version": "[1.11.34, )"
+            },
+            "Selenium.WebDriver": {
+              "target": "Package",
+              "version": "[3.141.0, )"
+            },
+            "Selenium.WebDriver.ChromeDriver": {
+              "target": "Package",
+              "version": "[92.0.4515.10700, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -58,7 +66,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.302\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/5.0.302/RuntimeIdentifierGraph.json"
         }
       }
     }
