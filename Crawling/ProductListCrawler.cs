@@ -44,20 +44,10 @@ namespace EcoBot.Crawling
             {
                 getRepac.GetRepacUrl(jobs[i].url);
             }
-
         }
-
-
-
-
-
-
-
 
         public void GetRepacUrl(string url)
         {
-
-
             List<ProductList> productList = new List<ProductList>();
             using (IWebDriver driver = new ChromeDriver())
             {
@@ -86,8 +76,8 @@ namespace EcoBot.Crawling
                         {
                             product = new ProductList()
                             {
-                                Thumnail = products[j].SelectNodes("//img")[j].GetAttributeValue("src", ""),
-                                ProductUrl = "https://re-ground.co.kr/" + products[j].SelectNodes("//div/a")[j].GetAttributeValue("href", ""),
+                                thumbnail = products[j].SelectNodes("//img")[j].GetAttributeValue("src", ""),
+                                productUrl = "https://re-ground.co.kr/" + products[j].SelectNodes("//div/a")[j].GetAttributeValue("href", ""),
 
                             };
 
@@ -99,16 +89,11 @@ namespace EcoBot.Crawling
                         continue;
                     }
                 }
-
             }
-        }
 
-        internal static void GetRepacUrl()
-        {
-            throw new NotImplementedException();
+            // 저장
+            (new Repositories()).AddProductList(productList);
         }
     }
-
-
 }
 

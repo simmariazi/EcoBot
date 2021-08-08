@@ -32,5 +32,25 @@ namespace EcoBot.DB
             return jobs;
         }
 
+        public bool AddProductList(List<ProductList> productLists)
+        {
+            CallDb callDb = new CallDb();
+
+            string query = string.Empty;
+
+            query += "INSERT INTO product_list (thumbnail, productUrl) VALUES ";
+
+            for (int i = 0; i < productLists.Count; i++)
+            {
+                query += "(" + productLists[i].thumbnail + "," + productLists[i].productUrl + ")";
+                if (i < productLists.Count)
+                {
+                    query += ",";
+                }
+
+            }
+
+            return callDb.Insert("query");
+        }
     }
 }

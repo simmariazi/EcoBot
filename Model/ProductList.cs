@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace EcoBot
 {
-    class ProductList
+    public class ProductList
     {
-        public string Thumnail { get; set;}
-        public string ProductUrl { get; set; }
-        public int Id { get; set; }
+        public string thumbnail { get; set; }
+        public string productUrl { get; set; }
+        public int id { get; set; }
     }
 }
