@@ -38,11 +38,11 @@ namespace EcoBot.DB
 
             string query = string.Empty;
 
-            query += "INSERT INTO product_list (thumbnail, productUrl) VALUES ";
+            query += "INSERT INTO product_list (thumbnail, productUrl, seller_id) VALUES ";
 
             for (int i = 0; i < productLists.Count; i++)
             {
-                query += "(" + productLists[i].thumbnail + "," + productLists[i].productUrl + ")";
+                query += "(" + productLists[i].thumbnail + "," + productLists[i].productUrl + "," + productLists[i].seller_id + ")";
                 if (i < productLists.Count)
                 {
                     query += ",";

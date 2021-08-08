@@ -78,6 +78,7 @@ namespace EcoBot.Crawling
                             {
                                 thumbnail = products[j].SelectNodes("//img")[j].GetAttributeValue("src", ""),
                                 productUrl = "https://re-ground.co.kr/" + products[j].SelectNodes("//div/a")[j].GetAttributeValue("href", ""),
+                                seller_id = 1,
 
                             };
 
