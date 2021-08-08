@@ -13,6 +13,8 @@ namespace EcoBot
 
         public string mainImage { get; set; }
 
+        public string detailUrl{get; set;}
+
         public List<Detail> detail { get; set; } //상품정보고시내용
 
         public string description { get; set; }

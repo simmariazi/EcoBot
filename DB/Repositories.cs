@@ -52,5 +52,25 @@ namespace EcoBot.DB
 
             return callDb.Insert("query");
         }
+        public List<ProductList> GetProductListsById(int id)
+        {
+            List<ProductList> productLists = new List<ProductList>();
+
+            CallDb callDb = new CallDb();
+
+            var productData = callDb.Select("SELECT * FROM product_list WHERE seller_id = " + id);
+
+            foreach (DataRow data in productData.Tables[0].Rows)
+            {
+                productLists.Add(new ProductList
+                {
+                    id = int.Parse(data["id"].ToString()),
+                    thumbnail = data["thumbnail"].ToString(),
+                    productUrl = data["productUrl"].ToString(),
+                });
+            }
+
+            return productLists;
+        }
     }
 }
