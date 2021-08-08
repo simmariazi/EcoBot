@@ -16,7 +16,7 @@ namespace EcoBot.DB
 
             CallDb callDb = new CallDb();
 
-            var jobData = callDb.Select("SELECT seller_url FROM seller WHERE id = " + sellerId);
+            var jobData = callDb.Select("SELECT * FROM job WHERE id = " + sellerId);
 
             foreach (DataRow data in jobData.Tables[0].Rows)
             {
