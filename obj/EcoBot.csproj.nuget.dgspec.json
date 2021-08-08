@@ -1,21 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\관리자\\Source\\Repos\\EcoBot\\EcoBot.csproj": {}
+    "D:\\01.Project\\Dotnet\\simmariazi\\EcoBot\\EcoBot.csproj": {}
   },
   "projects": {
-    "C:\\Users\\관리자\\Source\\Repos\\EcoBot\\EcoBot.csproj": {
+    "D:\\01.Project\\Dotnet\\simmariazi\\EcoBot\\EcoBot.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\관리자\\Source\\Repos\\EcoBot\\EcoBot.csproj",
+        "projectUniqueName": "D:\\01.Project\\Dotnet\\simmariazi\\EcoBot\\EcoBot.csproj",
         "projectName": "EcoBot",
-        "projectPath": "C:\\Users\\관리자\\Source\\Repos\\EcoBot\\EcoBot.csproj",
-        "packagesPath": "C:\\Users\\관리자\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\관리자\\Source\\Repos\\EcoBot\\obj\\",
+        "projectPath": "D:\\01.Project\\Dotnet\\simmariazi\\EcoBot\\EcoBot.csproj",
+        "packagesPath": "C:\\Users\\hawoo\\.nuget\\packages\\",
+        "outputPath": "D:\\01.Project\\Dotnet\\simmariazi\\EcoBot\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Microsoft\\Xamarin\\NuGet\\"
+        ],
         "configFilePaths": [
-          "C:\\Users\\관리자\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\hawoo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net5.0"
