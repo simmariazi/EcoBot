@@ -43,6 +43,14 @@ namespace EcoBot.Crawling
                 GetRepacUrl(jobs[i].url);
             }
         }
+        // productList를 실행하고, 데이터테이블(product_list)을 비교한다
+        // 잡테이블에서
+        // 셀러 아이디가 1인 애들중에
+        // productUrl을 비교해야해
+        // 데이터테이블(product_list)에 있으면 넘어가고 (추가하지않고)
+        // 데이터테이블(product_list)에 없으면 신규 추가한다.
+        // 근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
+        // 일정 주기마다 반복한다.
 
         public void GetRepacUrl(string url)
         {
@@ -63,6 +71,9 @@ namespace EcoBot.Crawling
 
                     var products = document.DocumentNode.SelectNodes(productNodeXpath);
 
+                    List<ProductList> confirm = (new Repositories()).GetProductListsById(1);
+
+
                     ProductList product = new ProductList();
                     for (int j = 0; j < products.Count; j++)
                     {
@@ -73,8 +84,25 @@ namespace EcoBot.Crawling
                             seller_id = 1,
 
                         };
+                        int ignore = 0;
+                        for (int i = 0; i < confirm.Count; i++)
+                        {
+                            // 둘다 있어 > 추가하지않고 넘어감
+                            if (product.productUrl == confirm[i].productUrl)
+                            {
+                                ignore = 1;
+                                break;
+                            }
+                        }
 
-                        productList.Add(product);
+
+
+                        //데이터테이블(product_list)에 없으면 신규 추가한다.
+                        if (ignore == 0)
+                        {
+                            productList.Add(product);
+                        }
+
                     }
                 }
                 catch
@@ -82,8 +110,13 @@ namespace EcoBot.Crawling
 
                 }
 
+
             }
 
+            
+            //근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
+            //    if (product.productUrl != confirm[i].productUrl)
+            //    {
             // 저장
             (new Repositories()).AddProductList(productList);
         }

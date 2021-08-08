@@ -52,6 +52,30 @@ namespace EcoBot.DB
 
             return callDb.Insert(query);
         }
+
+        public bool UpdateProductList(List<ProductList> productLists)
+        {
+            CallDb callDb = new CallDb();
+
+            string query = string.Empty;
+
+            //Todo 수정필요
+            query += "UPDATE product_list SET (thumbnail, productUrl, seller_id)  ";
+            //UPDATE eco_product SET seller = 'Simmaryazi' WHERE seller = '심마리아지';"
+
+            for (int i = 0; i < productLists.Count; i++)
+            {
+                query += "('" + productLists[i].thumbnail + "','" + productLists[i].productUrl + "'," + productLists[i].seller_id + ")";
+                if (i < productLists.Count - 1)
+                {
+                    query += ",";
+                }
+
+            }
+
+            return callDb.Insert(query);
+        }
+
         public List<ProductList> GetProductListsById(int id)
         {
             List<ProductList> productLists = new List<ProductList>();
