@@ -16,7 +16,7 @@ namespace EcoBot.DB
 
             CallDb callDb = new CallDb();
 
-            var jobData = callDb.Select("SELECT * FROM job WHERE seller_id = " + sellerId);
+            var jobData = callDb.Select($"SELECT * FROM job WHERE seller_id = {sellerId}");
 
             foreach (DataRow data in jobData.Tables[0].Rows)
             {
@@ -42,30 +42,7 @@ namespace EcoBot.DB
 
             for (int i = 0; i < productLists.Count; i++)
             {
-                query += "('" + productLists[i].thumbnail + "','" + productLists[i].productUrl + "'," + productLists[i].seller_id + ")";
-                if (i < productLists.Count-1)
-                {
-                    query += ",";
-                }
-
-            }
-
-            return callDb.Insert(query);
-        }
-
-        public bool UpdateProductList(List<ProductList> productLists)
-        {
-            CallDb callDb = new CallDb();
-
-            string query = string.Empty;
-
-            //Todo 수정필요
-            query += "UPDATE product_list SET (thumbnail, productUrl, seller_id)  ";
-            //UPDATE eco_product SET seller = 'Simmaryazi' WHERE seller = '심마리아지';"
-
-            for (int i = 0; i < productLists.Count; i++)
-            {
-                query += "('" + productLists[i].thumbnail + "','" + productLists[i].productUrl + "'," + productLists[i].seller_id + ")";
+                query += $"('{productLists[i].thumbnail}','{productLists[i].productUrl}',{productLists[i].seller_id})";
                 if (i < productLists.Count - 1)
                 {
                     query += ",";
@@ -76,13 +53,26 @@ namespace EcoBot.DB
             return callDb.Insert(query);
         }
 
+        public bool DeleteProductList(List<ProductList> productLists)
+        {
+            CallDb callDb = new CallDb();
+
+            //LINQ
+            string query_where = string.Join(',', productLists.Select(p=>"'"+p.productUrl+"'").ToList());
+
+            //Todo 수정필요
+            string query = $"UPDATE product_list SET is_used=0 WHERE productUrl IN({query_where}";
+
+            return callDb.Update(query);
+        }
+
         public List<ProductList> GetProductListsById(int id)
         {
             List<ProductList> productLists = new List<ProductList>();
 
             CallDb callDb = new CallDb();
 
-            var productData = callDb.Select("SELECT * FROM product_list WHERE seller_id = " + id);
+            var productData = callDb.Select($"SELECT * FROM product_list WHERE is_used = 1 AND seller_id = {id}");
 
             foreach (DataRow data in productData.Tables[0].Rows)
             {

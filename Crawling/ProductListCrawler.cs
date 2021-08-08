@@ -54,6 +54,7 @@ namespace EcoBot.Crawling
 
         public void GetRepacUrl(string url)
         {
+            List<ProductList> confirm = (new Repositories()).GetProductListsById(1);
             List<ProductList> productList = new List<ProductList>();
             using (IWebDriver driver = new ChromeDriver())
             {
@@ -71,9 +72,6 @@ namespace EcoBot.Crawling
 
                     var products = document.DocumentNode.SelectNodes(productNodeXpath);
 
-                    List<ProductList> confirm = (new Repositories()).GetProductListsById(1);
-
-
                     ProductList product = new ProductList();
                     for (int j = 0; j < products.Count; j++)
                     {
@@ -82,7 +80,6 @@ namespace EcoBot.Crawling
                             thumbnail = products[j].SelectNodes("//img[@class='_org_img org_img _lazy_img']")[j].GetAttributeValue("src", ""),
                             productUrl = "https://repac.co.kr" + products[j].SelectNodes("//div[@class='item-wrap']/a")[j].GetAttributeValue("href", ""),
                             seller_id = 1,
-
                         };
                         int ignore = 0;
                         for (int i = 0; i < confirm.Count; i++)
@@ -95,28 +92,28 @@ namespace EcoBot.Crawling
                             }
                         }
 
-
-
                         //데이터테이블(product_list)에 없으면 신규 추가한다.
                         if (ignore == 0)
                         {
                             productList.Add(product);
                         }
-
                     }
                 }
                 catch
                 {
 
                 }
-
-
             }
 
-            
+            List<ProductList> result = new List<ProductList>();
+
+            // result는 is_used 0으로 만들 애들.
             //근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
-            //    if (product.productUrl != confirm[i].productUrl)
-            //    {
+            result = confirm.Where(p => productList.Count(s => p.productUrl.Contains(s.productUrl)) > 0).ToList();
+
+            //업데이트(soft delete)
+            (new Repositories()).DeleteProductList(result);
+
             // 저장
             (new Repositories()).AddProductList(productList);
         }
