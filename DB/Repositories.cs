@@ -60,7 +60,6 @@ namespace EcoBot.DB
             //LINQ
             string query_where = string.Join(',', productLists.Select(p=>"'"+p.productUrl+"'").ToList());
 
-            //Todo 수정필요
             string query = $"UPDATE product_list SET is_used=0 WHERE productUrl IN({query_where})";
 
             return callDb.Update(query);

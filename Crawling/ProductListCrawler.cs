@@ -43,6 +43,18 @@ namespace EcoBot.Crawling
                 GetRepacUrl(jobs[i].url);
             }
         }
+
+        public void RegroundUrl()
+        {
+            //url = job의 셀러아이디 2
+            // 잡 가져오기
+            List<Job> jobs = (new Repositories()).GetJobs(2);
+
+            for (int i = 0; i < jobs.Count; i++)
+            {
+                GetRegroundUrl(jobs[i].url);
+            }
+        }
         // productList를 실행하고, 데이터테이블(product_list)을 비교한다
         // 잡테이블에서
         // 셀러 아이디가 1인 애들중에
@@ -80,6 +92,77 @@ namespace EcoBot.Crawling
                             thumbnail = products[j].SelectNodes("//img[@class='_org_img org_img _lazy_img']")[j].GetAttributeValue("src", ""),
                             productUrl = "https://repac.co.kr" + products[j].SelectNodes("//div[@class='item-wrap']/a")[j].GetAttributeValue("href", ""),
                             seller_id = 1,
+                        };
+                        int ignore = 0;
+                        for (int i = 0; i < confirm.Count; i++)
+                        {
+                            // 둘다 있어 > 추가하지않고 넘어감
+                            if (product.productUrl == confirm[i].productUrl)
+                            {
+                                ignore = 1;
+                                break;
+                            }
+                        }
+
+                        //데이터테이블(product_list)에 없으면 신규 추가한다.
+                        if (ignore == 0)
+                        {
+                            productList.Add(product);
+                        }
+                    }
+                }
+                catch
+                {
+
+                }
+            }
+
+            List<ProductList> result = new List<ProductList>();
+
+            // result는 is_used 0으로 만들 애들.
+            //근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
+            result = confirm.Where(p => productList.Count(s => p.productUrl.Contains(s.productUrl)) > 0).ToList();
+
+            //업데이트(soft delete)
+            (new Repositories()).DeleteProductList(result);
+
+            // 저장
+            (new Repositories()).AddProductList(productList);
+        }
+
+
+        public void GetRegroundUrl(string url)
+        {
+            List<ProductList> confirm = (new Repositories()).GetProductListsById(2);
+            List<ProductList> productList = new List<ProductList>();
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+
+                try
+                {
+                    driver.Url = url;
+                    driver.Navigate();
+                    Thread.Sleep(300);
+
+                    //todo
+            
+                    string productNodeXpath = "//*[@id='w201808055b66e9fd724c5']/div";
+                   
+
+                    HtmlDocument document = new HtmlDocument();
+                    document.LoadHtml(driver.PageSource);
+
+                    var products = document.DocumentNode.SelectNodes(productNodeXpath);
+
+                    ProductList product = new ProductList();
+                    for (int j = 0; j < products.Count; j++)
+                    {
+                        product = new ProductList()
+                        {                           
+                            thumbnail = products[j].SelectNodes("//img[@class='_org_img org_img _lazy_img']")[j].GetAttributeValue("src", ""),
+                            productUrl = "https://re-ground.co.kr/" + products[j].SelectNodes("//div[@class='item-thumbs']/a")[j].GetAttributeValue("href", ""),
+                            seller_id = 2,
                         };
                         int ignore = 0;
                         for (int i = 0; i < confirm.Count; i++)
