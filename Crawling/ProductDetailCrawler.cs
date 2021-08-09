@@ -9,6 +9,7 @@ using HtmlAgilityPack;
 using MySql.Data.MySqlClient;
 using System.Data;
 using EcoBot.DB;
+using Newtonsoft.Json.Linq;
 
 namespace EcoBot.Crawling
 {
@@ -30,36 +31,42 @@ namespace EcoBot.Crawling
         }
 
 
-      
+
         /// <summary>
         /// getdetail 특정셀러 상세정보 가져오기 
         /// </summary>
         /// <param name="productInfo"> 상품정보 </param>
         /// <param name="url">상세페이지 url</param>
         /// <param name="InnerText"> 세부정보 </param>
-        public void GetDetail(string url) 
+        public void GetDetail(string url)
         {
-            ProductDetail productdetails = new ProductDetail();
+            string error = string.Empty;
+            ProductDetail productDetails = new ProductDetail();
             using (IWebDriver driver = new ChromeDriver())
             {
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
                 try
-                    {
+                {
                     driver.Url = url;
                     driver.Navigate();
                     HtmlDocument document = new HtmlDocument();
                     document.LoadHtml(driver.PageSource);
 
-                    productdetails.name = document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/header/div[1]").InnerText;
-                    productdetails.productCode = null;
-                    productdetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prod_detail_body']").InnerText;
-                    productdetails.price = document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/header/div[3]/div[1]/span/span").InnerText;
-                }
-                catch 
-                {
+                    string productData = document.DocumentNode.SelectSingleNode("//script[@type='application/ld+json']").InnerText;
+                    JObject jarray = JObject.Parse(productData);
 
+                    productDetails.name = jarray["name"].ToString();
+                    productDetails.mainImage = jarray["image"][0].ToString();
+                    productDetails.productCode = null;
+                    productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prod_detail_body']").InnerText;
+                    productDetails.brandName = jarray["brand"]["name"].ToString();
+                    productDetails.price = int.Parse(jarray["offers"]["price"].ToString());
                 }
-           
+                catch (Exception ex)
+                {
+                    error = ex.Message;
+                }
+
             }
         }
     }

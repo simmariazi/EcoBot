@@ -21,11 +21,12 @@ namespace EcoBot
 
         public List<DeliveryInfo> deliveryInfo { get; set; }
 
-        public string price { get; set; }
+        public int price { get; set; }
 
         public Dictionary<int, List<string>> option { get; set; }
 
-        public string seller { get; set; }
+        public int sellerId { get; set; }
+        public string brandName { get; set; }
 
         public List<EcoCertifications> ecoCertifications { get; set; }
         
