@@ -147,7 +147,7 @@ namespace EcoBot.Crawling
 
                     //todo
             
-                    string productNodeXpath = "//*[@id='w201808055b66e9fd724c5']/div";
+                    string productNodeXpath = "//div[@class='shop-grid']/div/div/div[@class='shop-item _shop_item']";
                    
 
                     HtmlDocument document = new HtmlDocument();
@@ -156,7 +156,7 @@ namespace EcoBot.Crawling
                     var products = document.DocumentNode.SelectNodes(productNodeXpath);
 
                     ProductList product = new ProductList();
-                    for (int j = 0; j < products.Count; j++)
+                    for (int j = 0; j < products.Count/2; j++)
                     {
                         product = new ProductList()
                         {                           
@@ -182,20 +182,20 @@ namespace EcoBot.Crawling
                         }
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
-
+                    string error = ex.Message;
                 }
             }
 
-            List<ProductList> result = new List<ProductList>();
+            //List<ProductList> result = new List<ProductList>();
 
-            // result는 is_used 0으로 만들 애들.
-            //근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
-            result = confirm.Where(p => productList.Count(s => p.productUrl.Contains(s.productUrl)) > 0).ToList();
+            //// result는 is_used 0으로 만들 애들.
+            ////근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
+            //result = confirm.Where(p => productList.Count(s => p.productUrl.Contains(s.productUrl)) > 0).ToList();
 
-            //업데이트(soft delete)
-            (new Repositories()).DeleteProductList(result);
+            ////업데이트(soft delete)
+            //(new Repositories()).DeleteProductList(result);
 
             // 저장
             (new Repositories()).AddProductList(productList);
