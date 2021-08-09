@@ -19,7 +19,7 @@ namespace EcoBot
 
         public string description { get; set; }
 
-        public List<DeliveryInfo> deliveryInfo { get; set; }
+        public DeliveryInfo deliveryInfo { get; set; }
 
         public int price { get; set; }
 

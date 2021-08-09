@@ -24,7 +24,7 @@ namespace EcoBot.Crawling
             //2. getdetail 사용하기 
             foreach (var item in products)
             {
-                GetDetail(item.productUrl);
+                GetDetail(item.productUrl, item.seller_id);
             }
 
             return products;
@@ -38,7 +38,7 @@ namespace EcoBot.Crawling
         /// <param name="productInfo"> 상품정보 </param>
         /// <param name="url">상세페이지 url</param>
         /// <param name="InnerText"> 세부정보 </param>
-        public void GetDetail(string url)
+        public void GetDetail(string url, int seller_id)
         {
             string error = string.Empty;
             ProductDetail productDetails = new ProductDetail();
@@ -61,6 +61,11 @@ namespace EcoBot.Crawling
                     productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prod_detail_body']").InnerText;
                     productDetails.brandName = jarray["brand"]["name"].ToString();
                     productDetails.price = int.Parse(jarray["offers"]["price"].ToString());
+                    productDetails.sellerId = seller_id;
+                    // deliveryinfo함수랑 객체 연습하고 나서  
+                    // 옵션 
+                    // productdetails db에 product table에 insert 하기 
+                    //productDetails.deliveryInfo = 
                 }
                 catch (Exception ex)
                 {
