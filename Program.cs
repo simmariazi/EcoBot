@@ -7,8 +7,10 @@ namespace EcoBot
     {
         static void Main(string[] args)
         {
-            ProductListCrawler productListCrawler = new ProductListCrawler();
-            productListCrawler.RepacUrl();
+            //ProductListCrawler productListCrawler = new ProductListCrawler();
+            //productListCrawler.RepacUrl();
+            ProductDetailCrawler productDetailCrawler = new ProductDetailCrawler();
+            productDetailCrawler.GetProductUrl();
         }
     }
 }

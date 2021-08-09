@@ -19,8 +19,13 @@ namespace EcoBot.Crawling
         {
 
             List<ProductList> products = (new Repositories()).GetProductListsById(1);
-         //1. products 에서 url 활용하기  
-         //2. 
+            //1. products 에서 url 활용하기  
+            //2. getdetail 사용하기 
+            foreach (var item in products)
+            {
+                GetDetail(item.productUrl);
+            }
+
             return products;
         }
 
