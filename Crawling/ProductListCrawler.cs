@@ -28,7 +28,6 @@ namespace EcoBot.Crawling
         //    }
         //}
 
-
         //잡 테이블에 있는 데이터불러오기
 
         //잡에있는 데이터 중 리팩의 url만 불러오ㅑ
@@ -40,7 +39,7 @@ namespace EcoBot.Crawling
 
             for (int i = 0; i < jobs.Count; i++)
             {
-                GetRepacUrl(jobs[i].url);
+                GetRepacUrl(jobs[i].url, jobs[i].seller_id);
             }
         }
 
@@ -52,9 +51,28 @@ namespace EcoBot.Crawling
 
             for (int i = 0; i < jobs.Count; i++)
             {
-                GetRegroundUrl(jobs[i].url);
+                GetRegroundUrl(jobs[i].url, jobs[i].seller_id);
             }
         }
+
+        public void BaseUrl()
+        {
+            // 잡 가져오기
+            List<Job> jobs = (new Repositories()).GetJobs();
+
+            for (int i = 0; i < jobs.Count; i++)
+            {
+                if (jobs[i].seller_id == 1)
+                {
+                    GetRepacUrl(jobs[i].url, jobs[i].seller_id);
+                }
+                else if (jobs[i].seller_id == 2)
+                {
+                    GetRegroundUrl(jobs[i].url, jobs[i].seller_id);
+                }
+            }
+        }
+
         // productList를 실행하고, 데이터테이블(product_list)을 비교한다
         // 잡테이블에서
         // 셀러 아이디가 1인 애들중에
@@ -64,7 +82,7 @@ namespace EcoBot.Crawling
         // 근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
         // 일정 주기마다 반복한다.
 
-        public void GetRepacUrl(string url)
+        public void GetRepacUrl(string url, int sellerId)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(1);
             List<ProductList> productList = new List<ProductList>();
@@ -91,7 +109,7 @@ namespace EcoBot.Crawling
                         {
                             thumbnail = products[j].SelectNodes("//img[@class='_org_img org_img _lazy_img']")[j].GetAttributeValue("src", ""),
                             productUrl = "https://repac.co.kr" + products[j].SelectNodes("//div[@class='item-wrap']/a")[j].GetAttributeValue("href", ""),
-                            seller_id = 1,
+                            seller_id = sellerId,
                         };
                         int ignore = 0;
                         for (int i = 0; i < confirm.Count; i++)
@@ -121,17 +139,17 @@ namespace EcoBot.Crawling
 
             // result는 is_used 0으로 만들 애들.
             //근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
-            result = confirm.Where(p => productList.Count(s => p.productUrl.Contains(s.productUrl)) > 0).ToList();
+            //result = confirm.Where(p => productList.Count(s => p.productUrl.Contains(s.productUrl)) > 0).ToList();
 
             //업데이트(soft delete)
-            (new Repositories()).DeleteProductList(result);
+            //(new Repositories()).DeleteProductList(result);
 
             // 저장
             (new Repositories()).AddProductList(productList);
         }
 
 
-        public void GetRegroundUrl(string url)
+        public void GetRegroundUrl(string url, int sellerId)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(2);
             List<ProductList> productList = new List<ProductList>();
@@ -146,9 +164,9 @@ namespace EcoBot.Crawling
                     Thread.Sleep(300);
 
                     //todo
-            
+
                     string productNodeXpath = "//div[@class='shop-grid']/div/div/div[@class='shop-item _shop_item']";
-                   
+
 
                     HtmlDocument document = new HtmlDocument();
                     document.LoadHtml(driver.PageSource);
@@ -156,13 +174,13 @@ namespace EcoBot.Crawling
                     var products = document.DocumentNode.SelectNodes(productNodeXpath);
 
                     ProductList product = new ProductList();
-                    for (int j = 0; j < products.Count/2; j++)
+                    for (int j = 0; j < products.Count / 2; j++)
                     {
                         product = new ProductList()
-                        {                           
+                        {
                             thumbnail = products[j].SelectNodes("//img[@class='_org_img org_img _lazy_img']")[j].GetAttributeValue("src", ""),
                             productUrl = "https://re-ground.co.kr/" + products[j].SelectNodes("//div[@class='item-thumbs']/a")[j].GetAttributeValue("href", ""),
-                            seller_id = 2,
+                            seller_id = sellerId,
                         };
                         int ignore = 0;
                         for (int i = 0; i < confirm.Count; i++)
@@ -182,7 +200,7 @@ namespace EcoBot.Crawling
                         }
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     string error = ex.Message;
                 }

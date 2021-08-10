@@ -9,7 +9,8 @@ namespace EcoBot
         {
             ProductListCrawler productListCrawler = new ProductListCrawler();
             //productListCrawler.RepacUrl();
-            productListCrawler.RegroundUrl();
+            //productListCrawler.RegroundUrl();
+            productListCrawler.BaseUrl();
 
         }
     }
