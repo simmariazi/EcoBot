@@ -64,6 +64,17 @@ namespace EcoBot.Crawling
             }
         }
 
+        public void RichbowlUrl()
+        {
+
+            List<Job> jobs = (new Repositories()).GetJobs(5);
+
+            for (int i = 0; i < jobs.Count; i++)
+            {
+                GetRichbowlUrl(jobs[i].url, jobs[i].seller_id);
+            }
+        }
+
         public void BaseUrl()
         {
             // 잡 가져오기
@@ -82,6 +93,10 @@ namespace EcoBot.Crawling
                 else if (jobs[i].seller_id == 3)
                 {
                     GetLowlesUrl(jobs[i].url, jobs[i].seller_id);
+                }
+                else if (jobs[i].seller_id == 5)
+                {
+                    GetRichbowlUrl(jobs[i].url, jobs[i].seller_id);
                 }
             }
         }
@@ -299,6 +314,77 @@ namespace EcoBot.Crawling
 
             // 저장
              (new Repositories()).AddProductList(productList);
+        }
+
+        public void GetRichbowlUrl(string url, int sellerId)
+        {
+            List<ProductList> confirm = (new Repositories()).GetProductListsById(5);
+            List<ProductList> productList = new List<ProductList>();
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+
+                try
+                {
+                    driver.Url = url;
+                    driver.Navigate();
+                    Thread.Sleep(300);
+
+
+
+                    string productNodeXpath = "//*[@id='sct']/ul/li";
+
+
+                    HtmlDocument document = new HtmlDocument();
+                    document.LoadHtml(driver.PageSource);
+
+                    var products = document.DocumentNode.SelectNodes(productNodeXpath);
+
+                    ProductList product = new ProductList();
+                    for (int j = 0; j < products.Count; j++)
+                    {
+                        product = new ProductList()
+                        {
+                            //Todo 수정필요
+                            thumbnail = products[j].SelectNodes("//*[@id='sct']/ul/li")[j].GetAttributeValue("src", ""),
+                            productUrl = products[j].SelectNodes("//*[@id='sct'']/ul/li/div")[j].GetAttributeValue("href", ""),
+                            seller_id = sellerId,
+                        };
+                        int ignore = 0;
+                        for (int i = 0; i < confirm.Count; i++)
+                        {
+                            // 둘다 있어 > 추가하지않고 넘어감
+                            if (product.productUrl == confirm[i].productUrl)
+                            {
+                                ignore = 1;
+                                break;
+                            }
+                        }
+
+                        //데이터테이블(product_list)에 없으면 신규 추가한다.
+                        if (ignore == 0)
+                        {
+                            productList.Add(product);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string error = ex.Message;
+                }
+            }
+
+       //List<ProductList> result = new List<ProductList>();
+
+       //// result는 is_used 0으로 만들 애들.
+       ////근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
+       ////result = confirm.Where(p => productList.Count(s => p.productUrl.Contains(s.productUrl)) > 0).ToList();
+
+       ////업데이트(soft delete)
+       //(new Repositories()).DeleteProductList(result);
+
+       // 저장
+       (new Repositories()).AddProductList(productList);
         }
 
 
