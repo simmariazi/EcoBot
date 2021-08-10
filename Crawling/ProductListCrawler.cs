@@ -32,8 +32,7 @@ namespace EcoBot.Crawling
 
         //잡에있는 데이터 중 리팩의 url만 불러오ㅑ
         public void RepacUrl()
-        {
-           
+        {           
             List<Job> jobs = (new Repositories()).GetJobs(1);
 
             for (int i = 0; i < jobs.Count; i++)
@@ -43,8 +42,7 @@ namespace EcoBot.Crawling
         }
 
         public void RegroundUrl()
-        {
-    
+        {    
             List<Job> jobs = (new Repositories()).GetJobs(2);
 
             for (int i = 0; i < jobs.Count; i++)
@@ -54,8 +52,7 @@ namespace EcoBot.Crawling
         }
 
         public void LowlesUrl()
-        {
-          
+        { 
             List<Job> jobs = (new Repositories()).GetJobs(3);
 
             for (int i = 0; i < jobs.Count; i++)
@@ -66,7 +63,6 @@ namespace EcoBot.Crawling
 
         public void RichbowlUrl()
         {
-
             List<Job> jobs = (new Repositories()).GetJobs(5);
 
             for (int i = 0; i < jobs.Count; i++)
@@ -330,10 +326,7 @@ namespace EcoBot.Crawling
                     driver.Navigate();
                     Thread.Sleep(300);
 
-
-
                     string productNodeXpath = "//*[@id='sct']/ul/li";
-
 
                     HtmlDocument document = new HtmlDocument();
                     document.LoadHtml(driver.PageSource);
@@ -346,8 +339,8 @@ namespace EcoBot.Crawling
                         product = new ProductList()
                         {
                             //Todo 수정필요
-                            thumbnail = products[j].SelectNodes("//*[@id='sct']/ul/li")[j].GetAttributeValue("src", ""),
-                            productUrl = products[j].SelectNodes("//*[@id='sct'']/ul/li/div")[j].GetAttributeValue("href", ""),
+                            thumbnail = products[j].SelectNodes("//a[@class='sct_a']/img")[j].GetAttributeValue("src", ""),
+                            productUrl = products[j].SelectNodes("//a[@class='sct_a']")[j].GetAttributeValue("href", ""),
                             seller_id = sellerId,
                         };
                         int ignore = 0;
