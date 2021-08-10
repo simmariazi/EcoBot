@@ -33,8 +33,7 @@ namespace EcoBot.Crawling
         //잡에있는 데이터 중 리팩의 url만 불러오ㅑ
         public void RepacUrl()
         {
-            //url = job의 셀러아이디 1 
-            // 잡 가져오기
+           
             List<Job> jobs = (new Repositories()).GetJobs(1);
 
             for (int i = 0; i < jobs.Count; i++)
@@ -45,13 +44,23 @@ namespace EcoBot.Crawling
 
         public void RegroundUrl()
         {
-            //url = job의 셀러아이디 2
-            // 잡 가져오기
+    
             List<Job> jobs = (new Repositories()).GetJobs(2);
 
             for (int i = 0; i < jobs.Count; i++)
             {
                 GetRegroundUrl(jobs[i].url, jobs[i].seller_id);
+            }
+        }
+
+        public void LowlesUrl()
+        {
+          
+            List<Job> jobs = (new Repositories()).GetJobs(3);
+
+            for (int i = 0; i < jobs.Count; i++)
+            {
+                GetLowlesUrl(jobs[i].url, jobs[i].seller_id);
             }
         }
 
@@ -69,6 +78,10 @@ namespace EcoBot.Crawling
                 else if (jobs[i].seller_id == 2)
                 {
                     GetRegroundUrl(jobs[i].url, jobs[i].seller_id);
+                }
+                else if (jobs[i].seller_id == 3)
+                {
+                    GetLowlesUrl(jobs[i].url, jobs[i].seller_id);
                 }
             }
         }
@@ -163,7 +176,6 @@ namespace EcoBot.Crawling
                     driver.Navigate();
                     Thread.Sleep(300);
 
-                    //todo
 
                     string productNodeXpath = "//div[@class='shop-grid']/div/div/div[@class='shop-item _shop_item']";
 
@@ -218,6 +230,79 @@ namespace EcoBot.Crawling
             // 저장
             (new Repositories()).AddProductList(productList);
         }
+
+        public void GetLowlesUrl(string url, int sellerId)
+        {
+            List<ProductList> confirm = (new Repositories()).GetProductListsById(3);
+            List<ProductList> productList = new List<ProductList>();
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+
+                try
+                {
+                    driver.Url = url;
+                    driver.Navigate();
+                    Thread.Sleep(300);
+
+
+
+                    string productNodeXpath = "//*[@id='wide_contents']/div[2]/div[1]/div[2]/ul/li";
+
+
+                    HtmlDocument document = new HtmlDocument();
+                    document.LoadHtml(driver.PageSource);
+
+                    var products = document.DocumentNode.SelectNodes(productNodeXpath);
+
+                    ProductList product = new ProductList();
+                    for (int j = 0; j < products.Count; j++)
+                    {
+                        product = new ProductList()
+                        {
+                            thumbnail = products[j].SelectNodes("//img[@class='hover']")[j].GetAttributeValue("src", ""),
+                            productUrl = "https://lowles.kr/" + products[j].SelectNodes("//div[@class='thumbnail']/a")[j].GetAttributeValue("href", ""),
+                            seller_id = sellerId,
+                        };
+                        int ignore = 0;
+                        for (int i = 0; i < confirm.Count; i++)
+                        {
+                            // 둘다 있어 > 추가하지않고 넘어감
+                            if (product.productUrl == confirm[i].productUrl)
+                            {
+                                ignore = 1;
+                                break;
+                            }
+                        }
+
+                        //데이터테이블(product_list)에 없으면 신규 추가한다.
+                        if (ignore == 0)
+                        {
+                            productList.Add(product);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string error = ex.Message;
+                }
+            }
+
+            //List<ProductList> result = new List<ProductList>();
+
+            //// result는 is_used 0으로 만들 애들.
+            ////근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
+            ////result = confirm.Where(p => productList.Count(s => p.productUrl.Contains(s.productUrl)) > 0).ToList();
+
+            ////업데이트(soft delete)
+            //(new Repositories()).DeleteProductList(result);
+
+            // 저장
+             (new Repositories()).AddProductList(productList);
+        }
+
+
+
 
 
     }
