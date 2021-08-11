@@ -62,9 +62,29 @@ namespace EcoBot.Crawling
                     productDetails.brandName = jarray["brand"]["name"].ToString();
                     productDetails.price = int.Parse(jarray["offers"]["price"].ToString());
                     productDetails.sellerId = seller_id;
-                    // deliveryinfo함수랑 객체 연습하고 나서  
-                    // 옵션 
+                    productDetails.option = new Dictionary<int, List<string>>();
+                    //productDetails.option.Add(0, document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a").ToList());
+                    //dictionary 에 담을 list<string> 형태 변수 선언 
+                    List<string> sizes = new List<string>();
+                    var temp = document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a");
+                    foreach (var item in temp) 
+                    {
+                        sizes.Add(item.InnerText);
+                    }
+                    productDetails.option.Add(0, sizes); // 0은 사이즈
+
+
+                    DeliveryInfo deliveryinfo = new DeliveryInfo();
+                    deliveryinfo.deliveryTime = document.DocumentNode.SelectSingleNode("").InnerText;
+                    deliveryinfo.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[7]/div[2]/span/text()").InnerText);
+                    productDetails.deliveryInfo = deliveryinfo;
+                    
+
+                    // deliveryinfo함수랑 객체 연습하고 나서  deliveryinfo는 deliveryinfo type이고, deliveryinfo 안에 deliverytime, shippingfee 있음 
+                    // deliverytime 은 string , shippingfee 는 int 에서 string 으로 바꿔줌 
+                    // 옵션 : 샘플 참고 
                     // productdetails db에 product table에 insert 하기 
+                    // Addproductdetail 함수 사용하여 sql data insert하기  
                     //productDetails.deliveryInfo = 
                 }
                 catch (Exception ex)
@@ -72,6 +92,7 @@ namespace EcoBot.Crawling
                     error = ex.Message;
                 }
 
+ 
             }
         }
     }

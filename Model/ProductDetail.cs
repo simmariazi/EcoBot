@@ -21,6 +21,7 @@ namespace EcoBot
 
         public DeliveryInfo deliveryInfo { get; set; }
 
+
         public int price { get; set; }
 
         public Dictionary<int, List<string>> option { get; set; }
@@ -29,7 +30,10 @@ namespace EcoBot
         public string brandName { get; set; }
 
         public List<EcoCertifications> ecoCertifications { get; set; }
-        
+
+      
+
+
     }
 
     

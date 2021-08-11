@@ -86,5 +86,26 @@ namespace EcoBot.DB
 
             return productLists;
         }
+        public bool AddProductDetail(List<ProductDetail> productDetails)
+        {
+            CallDb callDb = new CallDb();
+
+            string query = string.Empty;
+
+            query += "INSERT INTO product (id, name, productcode, mainImage, description,brandname, price, sellerl_id) VALUES ";
+
+            for (int i = 0; i < productDetails.Count; i++)
+            {
+                query += $"('{productDetails[i].name}','{productDetails[i].mainImage}',{productDetails[i].productCode}," +
+                    $"{productDetails[i].description},{productDetails[i].brandName}, {productDetails[i].price}, {productDetails[i].sellerId})";
+                if (i < productDetails.Count - 1)
+                {
+                    query += ",";
+                }
+
+            }
+
+            return callDb.Insert(query);
+        }
     }
 }
