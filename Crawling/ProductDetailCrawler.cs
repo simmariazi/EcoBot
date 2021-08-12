@@ -94,6 +94,10 @@ namespace EcoBot.Crawling
 
  
             }
+            List<ProductDetail> products = new List <ProductDetail>();
+            (new Repositories()).AddProductDetail(products);
+
+
         }
     }
 }

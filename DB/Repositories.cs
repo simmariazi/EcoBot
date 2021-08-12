@@ -113,12 +113,12 @@ namespace EcoBot.DB
 
             string query = string.Empty;
 
-            query += "INSERT INTO product (id, name, productcode, mainImage, description,brandname, price, sellerl_id) VALUES ";
+            query += "INSERT INTO product (id, name, productcode, mainImage, description,brandname, price, option, sellerl_id, deliveruInfo) VALUES ";
 
             for (int i = 0; i < productDetails.Count; i++)
             {
                 query += $"('{productDetails[i].name}','{productDetails[i].mainImage}',{productDetails[i].productCode}," +
-                    $"{productDetails[i].description},{productDetails[i].brandName}, {productDetails[i].price}, {productDetails[i].sellerId})";
+                    $"{productDetails[i].description},{productDetails[i].brandName}, {productDetails[i].price}, {productDetails[i].option}, {productDetails[i].sellerId}, {productDetails[i].deliveryInfo})";
                 if (i < productDetails.Count - 1)
                 {
                     query += ",";
