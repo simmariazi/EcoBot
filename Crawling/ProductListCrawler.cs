@@ -324,6 +324,7 @@ namespace EcoBot.Crawling
             {
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
                 int count = 0;
+
                 for (int i = 1; ; i++)
                 {
 
@@ -331,6 +332,7 @@ namespace EcoBot.Crawling
                     {
                         //To do 페이지처리 필요
                         //driver.Url = url;
+
                         driver.Url = url + "&pStart=" + (16 * (i - 1));
                         //i가 1일때는 0을 붙인다
                         //i가 2이상일 때는 16씩 증가하여 붙인다
@@ -339,7 +341,7 @@ namespace EcoBot.Crawling
                         //3==32 = 16*(i-1)
 
                         driver.Navigate();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(3000);
 
                         string productNodeXpath = "//div[@class='gallery_list column4 pdBtnBoxWrap wrap new']/ul/li";
 
@@ -359,6 +361,7 @@ namespace EcoBot.Crawling
                             continue;
                         }
 
+                        count = 0;
 
                         ProductList product = new ProductList();
                         for (int j = 0; j < products.Count; j++)
