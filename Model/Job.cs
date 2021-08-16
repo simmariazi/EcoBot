@@ -11,5 +11,8 @@ namespace EcoBot.Model
 
         public string url { get; set; }
 
+        public DateTime last_crawling_date { get; set; }
+
+        public double cycle { get; set; }
     }
 }

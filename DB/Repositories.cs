@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace EcoBot.DB
 
             CallDb callDb = new CallDb();
 
-            var jobData = callDb.Select($"SELECT * FROM job WHERE seller_id = {sellerId}");
+            var jobData = callDb.Select($"SELECT * FROM job j WHERE j.seller_id = {sellerId}");
 
             foreach (DataRow data in jobData.Tables[0].Rows)
             {
@@ -25,7 +26,7 @@ namespace EcoBot.DB
                     id = int.Parse(data["id"].ToString()),
                     seller_id = int.Parse(data["seller_id"].ToString()),
                     category_id = int.Parse(data["category_id"].ToString()),
-                    url = data["url"].ToString()
+                    url = data["url"].ToString(),
                 });
             }
 
@@ -38,7 +39,7 @@ namespace EcoBot.DB
 
             CallDb callDb = new CallDb();
 
-            var jobData = callDb.Select($"SELECT * FROM job");
+            var jobData = callDb.Select($"SELECT j.*, s.cycle FROM job j, seller s WHERE s.id = j.seller_id");
 
             foreach (DataRow data in jobData.Tables[0].Rows)
             {
@@ -47,7 +48,9 @@ namespace EcoBot.DB
                     id = int.Parse(data["id"].ToString()),
                     seller_id = int.Parse(data["seller_id"].ToString()),
                     category_id = int.Parse(data["category_id"].ToString()),
-                    url = data["url"].ToString()
+                    url = data["url"].ToString(),
+                    last_crawling_date = Convert.ToDateTime(data["last_crawling_date"].ToString()),
+                    cycle = double.Parse(data["cycle"].ToString()),
                 });
             }
 
@@ -80,7 +83,7 @@ namespace EcoBot.DB
             CallDb callDb = new CallDb();
 
             //LINQ
-            string query_where = string.Join(',', productLists.Select(p=>"'"+p.productUrl+"'").ToList());
+            string query_where = string.Join(',', productLists.Select(p => "'" + p.productUrl + "'").ToList());
 
             string query = $"UPDATE product_list SET is_used=0 WHERE productUrl IN({query_where})";
 
@@ -127,6 +130,19 @@ namespace EcoBot.DB
             }
 
             return callDb.Insert(query);
+        }
+
+
+        public bool UpdateJobCrawlingDate(int id)
+        {
+            CallDb callDb = new CallDb();
+
+            string query = string.Empty;
+
+            query += $"UPDATE job SET last_crawling_date = NOW() WHERE id = {id}";
+
+
+            return callDb.Update(query);
         }
     }
 }

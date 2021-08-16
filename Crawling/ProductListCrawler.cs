@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -30,7 +31,7 @@ namespace EcoBot.Crawling
 
         //잡 테이블에 있는 데이터불러오기
 
-        //잡에있는 데이터 중 리팩의 url만 불러오ㅑ
+        //잡에있는 데이터 중 리팩의 url만 불러옴
         public void RepacUrl()
         {
             List<Job> jobs = (new Repositories()).GetJobs(1);
@@ -85,26 +86,70 @@ namespace EcoBot.Crawling
 
         public void BaseUrl()
         {
-            // 잡 가져오기
-            List<Job> jobs = (new Repositories()).GetJobs();
-
-            for (int i = 0; i < jobs.Count; i++)
+            List<Job> jobs;
+            DateTime now;
+            for (; ; )
             {
-                if (jobs[i].seller_id == 1)
+                // 잡 가져오기
+                jobs = (new Repositories()).GetJobs();
+
+                //DateTime now = DateTime.ParseExact(DateTime.Now.ToString(), "yyyyMMdd HHmmss", null);
+                now = Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                for (int i = 0; i < jobs.Count; i++)
                 {
-                    GetRepacUrl(jobs[i].url, jobs[i].seller_id);
-                }
-                else if (jobs[i].seller_id == 2)
-                {
-                    GetRegroundUrl(jobs[i].url, jobs[i].seller_id);
-                }
-                else if (jobs[i].seller_id == 3)
-                {
-                    GetLowlesUrl(jobs[i].url, jobs[i].seller_id);
-                }
-                else if (jobs[i].seller_id == 5)
-                {
-                    GetRichbowlUrl(jobs[i].url, jobs[i].seller_id);
+                    if (jobs[i].seller_id == 1)
+                    {
+                        //[잡_라스트 크롤링 데이트]로부터 [셀러_사이클]시간이 경과했으면 last_crawling_date
+                        //셀러 사이클은 셀러테이블에서 불러옴
+
+                        // last_crawling_date + cycle >= NOW  >>실행안함
+                        // last_crawling_date + cycle <= NOW  >> 실행함
+                        // last_crawling_date = null  >> 실행함
+                        if ((now - jobs[i].last_crawling_date).TotalHours <= jobs[i].cycle)
+                        {
+                            continue;
+                        }
+                        GetRepacUrl(jobs[i].url, jobs[i].seller_id);
+                        //수집시간을 [잡_라스트 크롤링 데이트]에 인서트
+                        (new Repositories()).UpdateJobCrawlingDate(jobs[i].id);
+                    }
+                    else if (jobs[i].seller_id == 2)
+                    {
+                        if ((now - jobs[i].last_crawling_date).TotalHours <= jobs[i].cycle)
+                        {
+                            continue;
+                        }
+                        GetRegroundUrl(jobs[i].url, jobs[i].seller_id);
+                        (new Repositories()).UpdateJobCrawlingDate(jobs[i].id);
+                    }
+                    else if (jobs[i].seller_id == 3)
+                    {
+                        if ((now - jobs[i].last_crawling_date).TotalHours <= jobs[i].cycle)
+                        {
+                            continue;
+                        }
+                        GetLowlesUrl(jobs[i].url, jobs[i].seller_id);
+                        (new Repositories()).UpdateJobCrawlingDate(jobs[i].id);
+                    }
+                    else if (jobs[i].seller_id == 4)
+                    {
+                        if ((now - jobs[i].last_crawling_date).TotalHours <= jobs[i].cycle)
+                        {
+                            continue;
+                        }
+                        GetNeezmallUrl(jobs[i].url, jobs[i].seller_id);
+                        (new Repositories()).UpdateJobCrawlingDate(jobs[i].id);
+                    }
+                    else if (jobs[i].seller_id == 5)
+                    {
+                        if ((now - jobs[i].last_crawling_date).TotalHours <= jobs[i].cycle)
+                        {
+                            continue;
+                        }
+                        GetRichbowlUrl(jobs[i].url, jobs[i].seller_id);
+                        (new Repositories()).UpdateJobCrawlingDate(jobs[i].id);
+                    }
                 }
             }
         }
@@ -197,7 +242,7 @@ namespace EcoBot.Crawling
                 {
                     driver.Url = url;
                     driver.Navigate();
-                    Thread.Sleep(300);
+                    Thread.Sleep(1000);
 
 
                     string productNodeXpath = "//div[@class='shop-grid']/div/div/div[@class='shop-item _shop_item']";
@@ -213,10 +258,16 @@ namespace EcoBot.Crawling
                     {
                         product = new ProductList()
                         {
-                            thumbnail = products[j].SelectNodes("//img[@class='_org_img org_img _lazy_img']")[j].GetAttributeValue("src", ""),
+                            thumbnail = products[j].SelectNodes("//img[@class='_org_img org_img _lazy_img']")[j].GetAttributeValue("data-src", ""),
                             productUrl = "https://re-ground.co.kr/" + products[j].SelectNodes("//div[@class='item-thumbs']/a")[j].GetAttributeValue("href", ""),
                             seller_id = sellerId,
                         };
+                        if (!product.thumbnail.Contains("http"))
+                        {
+                            int a = 0;
+                        }
+
+
                         int ignore = 0;
                         for (int i = 0; i < confirm.Count; i++)
                         {
