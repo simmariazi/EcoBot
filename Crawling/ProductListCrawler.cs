@@ -32,7 +32,7 @@ namespace EcoBot.Crawling
 
         //잡에있는 데이터 중 리팩의 url만 불러오ㅑ
         public void RepacUrl()
-        {           
+        {
             List<Job> jobs = (new Repositories()).GetJobs(1);
 
             for (int i = 0; i < jobs.Count; i++)
@@ -42,7 +42,7 @@ namespace EcoBot.Crawling
         }
 
         public void RegroundUrl()
-        {    
+        {
             List<Job> jobs = (new Repositories()).GetJobs(2);
 
             for (int i = 0; i < jobs.Count; i++)
@@ -52,7 +52,7 @@ namespace EcoBot.Crawling
         }
 
         public void LowlesUrl()
-        { 
+        {
             List<Job> jobs = (new Repositories()).GetJobs(3);
 
             for (int i = 0; i < jobs.Count; i++)
@@ -60,6 +60,18 @@ namespace EcoBot.Crawling
                 GetLowlesUrl(jobs[i].url, jobs[i].seller_id);
             }
         }
+
+
+        public void NeezmallUrl()
+        {
+            List<Job> jobs = (new Repositories()).GetJobs(4);
+
+            for (int i = 0; i < jobs.Count; i++)
+            {
+                GetNeezmallUrl(jobs[i].url, jobs[i].seller_id);
+            }
+        }
+
 
         public void RichbowlUrl()
         {
@@ -159,7 +171,7 @@ namespace EcoBot.Crawling
                 }
             }
 
-            List<ProductList> result = new List<ProductList>();
+            //List<ProductList> result = new List<ProductList>();
 
             // result는 is_used 0으로 만들 애들.
             //근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
@@ -299,18 +311,97 @@ namespace EcoBot.Crawling
                 }
             }
 
-            //List<ProductList> result = new List<ProductList>();
-
-            //// result는 is_used 0으로 만들 애들.
-            ////근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
-            ////result = confirm.Where(p => productList.Count(s => p.productUrl.Contains(s.productUrl)) > 0).ToList();
-
-            ////업데이트(soft delete)
-            //(new Repositories()).DeleteProductList(result);
-
             // 저장
              (new Repositories()).AddProductList(productList);
         }
+
+
+        public void GetNeezmallUrl(string url, int sellerId)
+        {
+            List<ProductList> confirm = (new Repositories()).GetProductListsById(4);
+            List<ProductList> productList = new List<ProductList>();
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+                int count = 0;
+                for (int i = 1; ; i++)
+                {
+
+                    try
+                    {
+                        //To do 페이지처리 필요
+                        //driver.Url = url;
+                        driver.Url = url + "&pStart=" + (16 * (i - 1));
+                        //i가 1일때는 0을 붙인다
+                        //i가 2이상일 때는 16씩 증가하여 붙인다
+                        //1==0 = 16*(i-1) 
+                        //2==16 = 16*(i-1)
+                        //3==32 = 16*(i-1)
+
+                        driver.Navigate();
+                        Thread.Sleep(1000);
+
+                        string productNodeXpath = "//div[@class='gallery_list column4 pdBtnBoxWrap wrap new']/ul/li";
+
+                        HtmlDocument document = new HtmlDocument();
+                        document.LoadHtml(driver.PageSource);
+
+                        var products = document.DocumentNode.SelectNodes(productNodeXpath);
+
+                        if (products == null)
+                        {
+                            if (count == 3)
+                            {
+                                break;
+                            }
+                            i--;
+                            count++;
+                            continue;
+                        }
+
+
+                        ProductList product = new ProductList();
+                        for (int j = 0; j < products.Count; j++)
+                        {
+                            product = new ProductList()
+                            {
+                                thumbnail = products[j].SelectNodes("//img[@class='_wtfull']")[j].GetAttributeValue("src", ""),
+                                productUrl = "https://www.neezmall.com/" + products[j].SelectNodes("//a[@class='pdLink']")[j].GetAttributeValue("href", ""),
+                                seller_id = sellerId,
+                            };
+
+                            int ignore = 0;
+                            for (int k = 0; k < confirm.Count; k++)
+                            {
+                                // 둘다 있어 > 추가하지않고 넘어감
+                                if (product.productUrl == confirm[k].productUrl)
+                                {
+                                    ignore = 1;
+                                    break;
+                                }
+                            }
+
+
+                            //데이터테이블(product_list)에 없으면 신규 추가한다.
+                            if (ignore == 0)
+                            {
+                                productList.Add(product);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        string error = ex.Message;
+                    }
+                }
+            }
+
+
+            // 저장
+            (new Repositories()).AddProductList(productList);
+        }
+
+
 
         public void GetRichbowlUrl(string url, int sellerId)
         {
@@ -367,23 +458,9 @@ namespace EcoBot.Crawling
                 }
             }
 
-       //List<ProductList> result = new List<ProductList>();
-
-       //// result는 is_used 0으로 만들 애들.
-       ////근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
-       ////result = confirm.Where(p => productList.Count(s => p.productUrl.Contains(s.productUrl)) > 0).ToList();
-
-       ////업데이트(soft delete)
-       //(new Repositories()).DeleteProductList(result);
-
        // 저장
        (new Repositories()).AddProductList(productList);
         }
-
-
-
-
-
     }
 }
 
