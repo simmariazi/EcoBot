@@ -129,21 +129,40 @@ namespace EcoBot.Crawling
                     driver.Navigate();
                     Thread.Sleep(300);
 
-                    //Xpath 수정필요
-                    string productNodeXpath = "//*[@id='container_w202004085670d4034bd2d']/div";
+                    //Xpath 검증필요
+                    string productNodeXpath = "//*[@id='prod_detail']/div";
 
                     HtmlDocument document = new HtmlDocument();
                     document.LoadHtml(driver.PageSource);
 
                     var products = document.DocumentNode.SelectNodes(productNodeXpath);
 
+
+                    //아래로 수정 필요
+                    ProductDetail product = new ProductDetail();
+                    product = new ProductDetail()
+                    {
+                        //추가 필요
+                        detailUrl = productUrl,
+                        sellerId = seller_id,
+                        name = "",
+                        productCode = "",
+                        detail = { },
+                        description = "",
+                        deliveryInfo = { },
+                        price = 0,
+                        option = { },
+                        brandName = "",
+                        ecoCertifications = { },
+                    };
                 }
                 catch
                 {
-
                 }
 
             }
+            // 저장
+            (new Repositories()).AddProductDetail(productDetail);
         }
     }
 }
