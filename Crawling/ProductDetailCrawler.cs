@@ -10,6 +10,7 @@ using MySql.Data.MySqlClient;
 using System.Data;
 using EcoBot.DB;
 using Newtonsoft.Json.Linq;
+using System.Threading;
 
 namespace EcoBot.Crawling
 {
@@ -67,7 +68,7 @@ namespace EcoBot.Crawling
                     //dictionary 에 담을 list<string> 형태 변수 선언 
                     List<string> sizes = new List<string>();
                     var temp = document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a");
-                    foreach (var item in temp) 
+                    foreach (var item in temp)
                     {
                         sizes.Add(item.InnerText);
                     }
@@ -78,7 +79,7 @@ namespace EcoBot.Crawling
                     deliveryinfo.deliveryTime = document.DocumentNode.SelectSingleNode("").InnerText;
                     deliveryinfo.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[7]/div[2]/span/text()").InnerText);
                     productDetails.deliveryInfo = deliveryinfo;
-                    
+
 
                     // deliveryinfo함수랑 객체 연습하고 나서  deliveryinfo는 deliveryinfo type이고, deliveryinfo 안에 deliverytime, shippingfee 있음 
                     // deliverytime 은 string , shippingfee 는 int 에서 string 으로 바꿔줌 
@@ -92,12 +93,57 @@ namespace EcoBot.Crawling
                     error = ex.Message;
                 }
 
- 
+
             }
-            List<ProductDetail> products = new List <ProductDetail>();
+            List<ProductDetail> products = new List<ProductDetail>();
             (new Repositories()).AddProductDetail(products);
 
 
+        }
+
+
+
+        public void GetRegroundProducts()
+        {
+
+            List<ProductList> products = (new Repositories()).GetProductListsById(2);
+            //1. products 에서 url 활용하기  
+            //2. getdetail 사용하기 
+            foreach (var item in products)
+            {
+                GetRegroundDetail(item.productUrl, item.seller_id);
+            }
+        }
+
+        public void GetRegroundDetail(string productUrl, int seller_id)
+        {
+            List<ProductList> confirm = (new Repositories()).GetProductListsById(2);
+            List<ProductDetail> productDetail = new List<ProductDetail>();
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+
+                try
+                {
+                    driver.Url = productUrl;
+                    driver.Navigate();
+                    Thread.Sleep(300);
+
+                    //Xpath 수정필요
+                    string productNodeXpath = "//*[@id='container_w202004085670d4034bd2d']/div";
+
+                    HtmlDocument document = new HtmlDocument();
+                    document.LoadHtml(driver.PageSource);
+
+                    var products = document.DocumentNode.SelectNodes(productNodeXpath);
+
+                }
+                catch
+                {
+
+                }
+
+            }
         }
     }
 }
