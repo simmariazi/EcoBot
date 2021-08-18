@@ -13,7 +13,7 @@ namespace EcoBot
 
         public string mainImage { get; set; }
 
-        public string detailUrl{get; set;}
+        public string productUrl{get; set;}
 
         public List<Detail> detail { get; set; } //상품정보고시내용
 
@@ -30,8 +30,11 @@ namespace EcoBot
         public string brandName { get; set; }
 
         public List<EcoCertifications> ecoCertifications { get; set; }
+        
+        //진열 = 1, 미진열처리= 0  
+        public int status { get; set;} 
 
-      
+
 
 
     }

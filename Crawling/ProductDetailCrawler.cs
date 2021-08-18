@@ -10,6 +10,7 @@ using MySql.Data.MySqlClient;
 using System.Data;
 using EcoBot.DB;
 using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 
 namespace EcoBot.Crawling
 {
@@ -22,10 +23,8 @@ namespace EcoBot.Crawling
             List<ProductList> products = (new Repositories()).GetProductListsById(1);
             //1. products 에서 url 활용하기  
             //2. getdetail 사용하기 
-            foreach (var item in products)
-            {
-                GetDetail(item.productUrl, item.seller_id);
-            }
+
+            GetDetail(products);
 
             return products;
         }
@@ -38,63 +37,94 @@ namespace EcoBot.Crawling
         /// <param name="productInfo"> 상품정보 </param>
         /// <param name="url">상세페이지 url</param>
         /// <param name="InnerText"> 세부정보 </param>
-        public void GetDetail(string url, int seller_id)
+        public void GetDetail(List<ProductList> product)
         {
             string error = string.Empty;
             ProductDetail productDetails = new ProductDetail();
+            List<ProductDetail> products = new List<ProductDetail>();
             using (IWebDriver driver = new ChromeDriver())
             {
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-                try
+                for (int i = 0; i < product.Count; i++)
                 {
-                    driver.Url = url;
-                    driver.Navigate();
-                    HtmlDocument document = new HtmlDocument();
-                    document.LoadHtml(driver.PageSource);
-
-                    string productData = document.DocumentNode.SelectSingleNode("//script[@type='application/ld+json']").InnerText;
-                    JObject jarray = JObject.Parse(productData);
-
-                    productDetails.name = jarray["name"].ToString();
-                    productDetails.mainImage = jarray["image"][0].ToString();
-                    productDetails.productCode = null;
-                    productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prod_detail_body']").InnerText;
-                    productDetails.brandName = jarray["brand"]["name"].ToString();
-                    productDetails.price = int.Parse(jarray["offers"]["price"].ToString());
-                    productDetails.sellerId = seller_id;
-                    productDetails.option = new Dictionary<int, List<string>>();
-                    //productDetails.option.Add(0, document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a").ToList());
-                    //dictionary 에 담을 list<string> 형태 변수 선언 
-                    List<string> sizes = new List<string>();
-                    var temp = document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a");
-                    foreach (var item in temp) 
+                    productDetails = new ProductDetail();
+                    try
                     {
-                        sizes.Add(item.InnerText);
+                        driver.Url = product[i].productUrl;
+                        driver.Navigate();
+                        HtmlDocument document = new HtmlDocument();
+                        document.LoadHtml(driver.PageSource);
+
+                        string productData = document.DocumentNode.SelectSingleNode("//script[@type='application/ld+json']").InnerText;
+                        JObject jarray = JObject.Parse(productData);
+                        productDetails.id = product[i].id;
+                        productDetails.name = jarray["name"].ToString();
+                        string a = productDetails.name;
+                        productDetails.mainImage = jarray["image"][0].ToString();
+                        productDetails.productCode = null;
+                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prod_detail_body']").InnerText;
+                        //예외처리 추가
+                        if (jarray["brand"] == null)
+                        {
+                            productDetails.brandName = "";
+                        }
+                        else
+                        {
+                            productDetails.brandName = jarray["brand"]["name"].ToString();
+                        }
+
+                        //productDetails.brandName = jarray["brand"]["name"].ToString(); 원래 이거였음 
+                        productDetails.price = int.Parse(jarray["offers"]["price"].ToString());
+                        productDetails.sellerId = product[i].seller_id;
+                        productDetails.productUrl = product[i].productUrl;
+                        //productDetails.ecoCertifications = new List<EcoCertifications>();
+
+
+                        productDetails.status = 1;
+
+                        productDetails.option = new Dictionary<int, List<string>>();
+                        //productDetails.option.Add(0, document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a").ToList());I
+                        //dictionary 에 담을 list<string> 형태 변수 선언 
+                        List<string> sizes = new List<string>();
+                        var temp = document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a");
+                        foreach (var item in temp)
+                        {
+                            sizes.Add(item.InnerText);
+                        }
+                        productDetails.option.Add(0, sizes); // 0은 사이즈
+
+
+                        productDetails.deliveryInfo = new DeliveryInfo();
+                        productDetails.deliveryInfo.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[3]/div/div[2]/div/div[2]").InnerText;
+                        //deliveryinfo.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[7]/div[2]/span/text()").InnerText);
+                        // 숫자 가져오는 정규식 문법 regex 사용
+                        productDetails.deliveryInfo.shippingFee = int.Parse(Regex.Replace( document.DocumentNode.SelectSingleNode("//span[@class='option_data'").InnerText,@"D",""));
+
+
+                        Detail details = new Detail();
+                        details.brand = jarray["brand"]["name"].ToString();
+                        details.Manufacturer = document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[1]/div[2]/span").InnerText;
+                        details.Origin = "정보없음";
+                        productDetails.detail = new List<Detail>();
+                        productDetails.detail.Add(details);
+
+
+                        // deliveryinfo함수랑 객체 연습하고 나서  deliveryinfo는 deliveryinfo type이고, deliveryinfo 안에 deliverytime, shippingfee 있음 
+                        // deliverytime 은 string , shippingfee 는 int 에서 string 으로 바꿔줌 
+                        // 옵션 : 샘플 참고 
+                        // productdetails db에 product table에 insert 하기 
+                        // Addproductdetail 함수 사용하여 sql data insert하기  
+                        //productDetails.deliveryInfo = 
                     }
-                    productDetails.option.Add(0, sizes); // 0은 사이즈
-
-
-                    DeliveryInfo deliveryinfo = new DeliveryInfo();
-                    deliveryinfo.deliveryTime = document.DocumentNode.SelectSingleNode("").InnerText;
-                    deliveryinfo.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[7]/div[2]/span/text()").InnerText);
-                    productDetails.deliveryInfo = deliveryinfo;
-                    
-
-                    // deliveryinfo함수랑 객체 연습하고 나서  deliveryinfo는 deliveryinfo type이고, deliveryinfo 안에 deliverytime, shippingfee 있음 
-                    // deliverytime 은 string , shippingfee 는 int 에서 string 으로 바꿔줌 
-                    // 옵션 : 샘플 참고 
-                    // productdetails db에 product table에 insert 하기 
-                    // Addproductdetail 함수 사용하여 sql data insert하기  
-                    //productDetails.deliveryInfo = 
+                    catch (Exception ex)
+                    {
+                        error = ex.Message;
+                    }
+                    products.Add(productDetails);
                 }
-                catch (Exception ex)
-                {
-                    error = ex.Message;
-                }
+                
 
- 
             }
-            List<ProductDetail> products = new List <ProductDetail>();
             (new Repositories()).AddProductDetail(products);
 
 

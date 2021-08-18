@@ -80,7 +80,7 @@ namespace EcoBot.DB
             CallDb callDb = new CallDb();
 
             //LINQ
-            string query_where = string.Join(',', productLists.Select(p=>"'"+p.productUrl+"'").ToList());
+            string query_where = string.Join(',', productLists.Select(p => "'" + p.productUrl + "'").ToList());
 
             string query = $"UPDATE product_list SET is_used=0 WHERE productUrl IN({query_where})";
 
@@ -113,20 +113,42 @@ namespace EcoBot.DB
 
             string query = string.Empty;
 
-            query += "INSERT INTO product (id, name, productcode, mainImage, description,brandname, price, option, sellerl_id, deliveruInfo) VALUES ";
+            query += "INSERT INTO product (id, name, productcode, mainImage, description, detail, delivery_id, price, option, seller_id, product_url) VALUES ";
 
             for (int i = 0; i < productDetails.Count; i++)
             {
-                query += $"('{productDetails[i].name}','{productDetails[i].mainImage}',{productDetails[i].productCode}," +
-                    $"{productDetails[i].description},{productDetails[i].brandName}, {productDetails[i].price}, {productDetails[i].option}, {productDetails[i].sellerId}, {productDetails[i].deliveryInfo})";
+                //옵션 데이터 확인할 것 
+                query += $"({productDetails[i].id},'{productDetails[i].name}','{productDetails[i].productCode}','{productDetails[i].mainImage}'" +
+                    $"'{productDetails[i].description}', {AddDeliveryinfo(productDetails[i].deliveryInfo.deliveryTime,productDetails[i].deliveryInfo.shippingFee)}, {productDetails[i].price}, '{productDetails[i].option}', {productDetails[i].sellerId}, '{productDetails[i].productUrl}')";
                 if (i < productDetails.Count - 1)
                 {
                     query += ",";
                 }
 
             }
-
+           
             return callDb.Insert(query);
+        }
+        public int AddDeliveryinfo(string deliveryTime, int shippingFee)
+        {
+            CallDb callDb = new CallDb();
+
+            string query = string.Empty;
+
+            query += "INSERT INTO deliveryinfo (deliveryTime, shippingFee) VALUES ";
+            query += $"('{deliveryTime}', {shippingFee})";
+
+             callDb.Insert(query);
+            var productData = callDb.Select("SELECT MAX(id) as id from deliveryinfo");
+
+            int id = 0;
+            foreach (DataRow data in productData.Tables[0].Rows)
+            {
+                id = int.Parse(data["id"].ToString());
+                  
+            }
+
+            return id;
         }
     }
 }
