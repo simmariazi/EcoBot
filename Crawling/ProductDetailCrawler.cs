@@ -11,6 +11,7 @@ using System.Data;
 using EcoBot.DB;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace EcoBot.Crawling
 {
@@ -128,6 +129,70 @@ namespace EcoBot.Crawling
             (new Repositories()).AddProductDetail(products);
 
 
+        }
+
+
+
+        public void GetRegroundProducts()
+        {
+
+            List<ProductList> products = (new Repositories()).GetProductListsById(2);
+            //1. products 에서 url 활용하기  
+            //2. getdetail 사용하기 
+            foreach (var item in products)
+            {
+                GetRegroundDetail(item.productUrl, item.seller_id);
+            }
+        }
+
+        public void GetRegroundDetail(string productUrl, int seller_id)
+        {
+            List<ProductList> confirm = (new Repositories()).GetProductListsById(2);
+            List<ProductDetail> productDetail = new List<ProductDetail>();
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+
+                try
+                {
+                    driver.Url = productUrl;
+                    driver.Navigate();
+                    Thread.Sleep(300);
+
+                    //Xpath 검증필요
+                    string productNodeXpath = "//*[@id='prod_detail']/div";
+
+                    HtmlDocument document = new HtmlDocument();
+                    document.LoadHtml(driver.PageSource);
+
+                    var products = document.DocumentNode.SelectNodes(productNodeXpath);
+
+
+                    //아래로 수정 필요
+                    ProductDetail product = new ProductDetail();
+                    product = new ProductDetail()
+                    {
+                        //추가 필요
+                        detailUrl = productUrl,
+                        sellerId = seller_id,
+                        name = "",
+                        productCode = "",
+                        detail = { },
+                        description = "",
+                        deliveryInfo = { },
+                        price = 0,
+                        option = { },
+                        brandName = "",
+                        ecoCertifications = { },
+                    };
+                }
+                catch
+                {
+                }
+
+            }
+            // 저장
+            (new Repositories()).AddProductDetail(productDetail);
         }
     }
 }
