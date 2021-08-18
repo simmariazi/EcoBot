@@ -173,17 +173,17 @@ namespace EcoBot.Crawling
                     product = new ProductDetail()
                     {
                         //추가 필요
-                        detailUrl = productUrl,
-                        sellerId = seller_id,
-                        name = "",
-                        productCode = "",
-                        detail = { },
-                        description = "",
-                        deliveryInfo = { },
-                        price = 0,
-                        option = { },
-                        brandName = "",
-                        ecoCertifications = { },
+                        //detailUrl = productUrl,
+                        //sellerId = seller_id,
+                        //name = "",
+                        //productCode = "",
+                        //detail = { },
+                        //description = "",
+                        //deliveryInfo = { },
+                        //price = 0,
+                        //option = { },
+                        //brandName = "",
+                        //ecoCertifications = { },
                     };
                 }
                 catch

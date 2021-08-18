@@ -122,7 +122,7 @@ namespace EcoBot.DB
             {
                 //옵션 데이터 확인할 것 
                 query += $"({productDetails[i].id},'{productDetails[i].name}','{productDetails[i].productCode}','{productDetails[i].mainImage}'" +
-                    $"'{productDetails[i].description}', {AddDeliveryinfo(productDetails[i].deliveryInfo.deliveryTime,productDetails[i].deliveryInfo.shippingFee)}, {productDetails[i].price}, '{productDetails[i].option}', {productDetails[i].sellerId}, '{productDetails[i].productUrl}')";
+                    $"'{productDetails[i].description}', {AddDeliveryinfo(productDetails[i].deliveryInfo.deliveryTime,productDetails[i].deliveryInfo.shippingFee)}, {productDetails[i].price}, '{string.Join(',',productDetails[i].option[0])}', {productDetails[i].sellerId}, '{productDetails[i].productUrl}')";
                 if (i < productDetails.Count - 1)
                 {
                     query += ",";
