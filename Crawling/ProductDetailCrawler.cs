@@ -38,7 +38,7 @@ namespace EcoBot.Crawling
         /// <param name="productInfo"> 상품정보 </param>
         /// <param name="url">상세페이지 url</param>
         /// <param name="InnerText"> 세부정보 </param>
-        public void GetDetail(List<ProductList> product)
+        public void GetDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
         {
             string error = string.Empty;
             ProductDetail productDetails = new ProductDetail();
@@ -51,6 +51,7 @@ namespace EcoBot.Crawling
                     productDetails = new ProductDetail();
                     try
                     {
+                        //productlist 형식의 product 에 i번째 있는 producturl을 가져와
                         driver.Url = product[i].productUrl;
                         driver.Navigate();
                         HtmlDocument document = new HtmlDocument();
@@ -64,12 +65,13 @@ namespace EcoBot.Crawling
                         productDetails.mainImage = jarray["image"][0].ToString();
                         productDetails.productCode = null;
                         productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prod_detail_body']").InnerText;
-                        //예외처리 추가
+                        //예외처리 추가 brand 값이 없을 때, 브랜드 네임에 "빈칸" 넣어줘
                         if (jarray["brand"] == null)
                         {
                             productDetails.brandName = "";
                         }
                         else
+                        // 그렇지 않으면 브랜드네임 가져와
                         {
                             productDetails.brandName = jarray["brand"]["name"].ToString();
                         }
@@ -80,7 +82,7 @@ namespace EcoBot.Crawling
                         productDetails.productUrl = product[i].productUrl;
                         //productDetails.ecoCertifications = new List<EcoCertifications>();
 
-
+                        //status int 형식을 변경 뒤에 1 넣어줌
                         productDetails.status = 1;
 
                         productDetails.option = new Dictionary<int, List<string>>();
@@ -99,7 +101,7 @@ namespace EcoBot.Crawling
                         productDetails.deliveryInfo.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[3]/div/div[2]/div/div[2]").InnerText;
                         //deliveryinfo.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[7]/div[2]/span/text()").InnerText);
                         // 숫자 가져오는 정규식 문법 regex 사용
-                        productDetails.deliveryInfo.shippingFee = int.Parse(Regex.Replace( document.DocumentNode.SelectSingleNode("//span[@class='option_data'").InnerText,@"D",""));
+                        productDetails.deliveryInfo.shippingFee = int.Parse(Regex.Replace(document.DocumentNode.SelectSingleNode("//span[@class='option_data'").InnerText, @"D", ""));
 
 
                         Detail details = new Detail();
@@ -123,7 +125,7 @@ namespace EcoBot.Crawling
                     }
                     products.Add(productDetails);
                 }
-                
+
 
             }
             (new Repositories()).AddProductDetail(products);
@@ -193,6 +195,102 @@ namespace EcoBot.Crawling
             }
             // 저장
             (new Repositories()).AddProductDetail(productDetail);
+        }
+
+
+
+
+        public List<ProductList> GetLowlesDetail()
+        {
+
+            List<ProductList> products = (new Repositories()).GetProductListsById(3);
+
+            GetLowlesDetail(products);
+
+            return products;
+        }
+
+
+
+        /// <summary>
+        /// getdetail 특정셀러 상세정보 가져오기 
+        /// </summary>
+        /// <param name="productInfo"> 상품정보 </param>
+        /// <param name="url">상세페이지 url</param>
+        /// <param name="InnerText"> 세부정보 </param>
+        public void GetLowlesDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
+        {
+            string error = string.Empty;
+            ProductDetail productDetails = new ProductDetail();
+            List<ProductDetail> products = new List<ProductDetail>();
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+                for (int i = 0; i < product.Count; i++)
+                {
+                    productDetails = new ProductDetail();
+                    try
+                    {
+                        //productlist 형식의 product 에 i번째 있는 producturl을 가져와
+                        driver.Url = product[i].productUrl;
+                        driver.Navigate();
+                        HtmlDocument document = new HtmlDocument();
+                        document.LoadHtml(driver.PageSource);
+                        productDetails.id = product[i].id;
+                        productDetails.name = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[3]/div/div[1]/div[2]/div[1]/h2").InnerText;
+                        productDetails.mainImage = document.DocumentNode.SelectSingleNode("//*[@id='prdDetail']/div/div[1]/img[2]").InnerText;
+                        productDetails.productCode = null;
+                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prdDetail']/div/div[2]/p[2]/img").InnerText;
+                        productDetails.brandName = null;
+                        productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='span_product_price_text']").InnerText);
+                        productDetails.sellerId = product[i].seller_id;
+                        productDetails.productUrl = product[i].productUrl;
+                        //productDetails.ecoCertifications = new List<EcoCertifications>();
+
+                        //status int 형식을 변경 뒤에 1 넣어줌
+                        productDetails.status = 1;
+
+                        productDetails.option = new Dictionary<int, List<string>>();
+                        //productDetails.option.Add(0, document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a").ToList());I
+                        //dictionary 에 담을 list<string> 형태 변수 선언 
+                        List<string> sizes = new List<string>();
+                        var temp = document.DocumentNode.SelectNodes("//*[@id='product_option_id1']");
+                        foreach (var item in temp)
+                        {
+                            sizes.Add(item.InnerText);
+                        }
+                        productDetails.option.Add(0, sizes); // 0은 사이즈
+                        productDetails.deliveryInfo = new DeliveryInfo();
+                        productDetails.deliveryInfo.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[5]").InnerText;
+                        productDetails.deliveryInfo.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[4]").InnerText);
+
+
+                        //디테일 수정필요 
+                        //Detail details = new Detail();
+                        //details.brand = ;
+                        //details.Manufacturer = document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[1]/div[2]/span").InnerText;
+                        //details.Origin = "정보없음";
+                        //productDetails.detail = new List<Detail>();
+                        //productDetails.detail.Add(details);
+
+
+                        // deliveryinfo함수랑 객체 연습하고 나서  deliveryinfo는 deliveryinfo type이고, deliveryinfo 안에 deliverytime, shippingfee 있음 
+                        // deliverytime 은 string , shippingfee 는 int 에서 string 으로 바꿔줌 
+                        // 옵션 : 샘플 참고 
+                        // productdetails db에 product table에 insert 하기 
+                        // Addproductdetail 함수 사용하여 sql data insert하기  
+                        //productDetails.deliveryInfo = 
+                    }
+                    catch (Exception ex)
+                    {
+                        error = ex.Message;
+                    }
+                    products.Add(productDetails);
+                }
+
+
+            }
+            (new Repositories()).AddProductDetail(products);
         }
     }
 }
