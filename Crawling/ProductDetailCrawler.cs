@@ -89,20 +89,18 @@ namespace EcoBot.Crawling
                         //productDetails.option.Add(0, document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a").ToList());I
                         //dictionary 에 담을 list<string> 형태 변수 선언 
                         List<string> sizes = new List<string>();
-                        var temp = document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a");
-                        foreach (var item in temp)
+                        var temp = document.DocumentNode.SelectNodes("//*[@id=prod'_options']/div/div/div[2]/div"); 
+                        foreach (var item in temp) 
                         {
                             sizes.Add(item.InnerText);
                         }
                         productDetails.option.Add(0, sizes); // 0은 사이즈
 
 
-                        productDetails.deliveryInfo = new DeliveryInfo();
-                        productDetails.deliveryInfo.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[3]/div/div[2]/div/div[2]").InnerText;
-                        //deliveryinfo.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[7]/div[2]/span/text()").InnerText);
+                        productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[3]/div/div[2]/div").InnerText;
                         // 숫자 가져오는 정규식 문법 regex 사용
-                        productDetails.deliveryInfo.shippingFee = int.Parse(Regex.Replace(document.DocumentNode.SelectSingleNode("//span[@class='option_data'").InnerText, @"D", ""));
-
+                        productDetails.shippingFee = int.Parse(Regex.Replace(document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[8]/div[2]/span/text()").InnerText, @"D", ""));
+                        
 
                         Detail details = new Detail();
                         details.brand = jarray["brand"]["name"].ToString();
@@ -260,9 +258,9 @@ namespace EcoBot.Crawling
                             sizes.Add(item.InnerText);
                         }
                         productDetails.option.Add(0, sizes); // 0은 사이즈
-                        productDetails.deliveryInfo = new DeliveryInfo();
-                        productDetails.deliveryInfo.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[5]").InnerText;
-                        productDetails.deliveryInfo.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[4]").InnerText);
+
+                        productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[5]").InnerText;
+                        productDetails.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[4]").InnerText);
 
 
                         //디테일 수정필요 
@@ -291,6 +289,72 @@ namespace EcoBot.Crawling
 
             }
             (new Repositories()).AddProductDetail(products);
+        }
+
+        public void GetNeezmallDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
+        {
+            string error = string.Empty;
+            ProductDetail productDetails = new ProductDetail();
+            List<ProductDetail> products = new List<ProductDetail>();
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(4);
+                for (int i = 0; i < product.Count; i++)
+                {
+                    productDetails = new ProductDetail();
+                    try
+                    {
+                        //productlist 형식의 product 에 i번째 있는 producturl을 가져와
+                        driver.Url = product[i].productUrl;
+                        driver.Navigate();
+                        HtmlDocument document = new HtmlDocument();
+                        document.LoadHtml(driver.PageSource);
+                        productDetails.id = product[i].id;
+                        productDetails.name = document.DocumentNode.SelectSingleNode("//*[@id='Frm']/div/div[2]/div/h1").InnerText;
+                        productDetails.mainImage = document.DocumentNode.SelectSingleNode("//*[@id='mainImg']/li/span").InnerText;
+                        productDetails.productCode = document.DocumentNode.SelectSingleNode("//*[@id='Frm']/div/div[2]/div/div[9]/dl[1]/dd").InnerText;
+                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='tbContent']/tbody/tr/td/div/p/a/img").InnerText;
+                        productDetails.brandName = null;
+                        productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='TotalGoodsPrice']").InnerText);
+                        productDetails.sellerId = product[i].seller_id;
+                        productDetails.productUrl = product[i].productUrl;
+                        //productDetails.ecoCertifications = new List<EcoCertifications>();
+
+                        //status int 형식을 변경 뒤에 1 넣어줌
+                        productDetails.status = 1;
+
+                        productDetails.option = new Dictionary<int, List<string>>();
+                        //productDetails.option.Add(0, document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a").ToList());I
+                        //dictionary 에 담을 list<string> 형태 변수 선언 
+                        List<string> sizes = new List<string>();
+                        var temp = document.DocumentNode.SelectNodes("//*[@id='optList']"); //옵션 재확인 필요 
+                        foreach (var item in temp)
+                        {
+                            sizes.Add(item.InnerText);
+                        }
+                        productDetails.option.Add(0, sizes); // 0은 사이즈
+
+                        productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[1]/div[5]/div[1]/div[6]/table[1]/tbody/tr[3]/td/table/tbody/tr[2]/td/span").InnerText;
+                        productDetails.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[1]/div[5]/div[1]/div[6]/table[1]/tbody/tr[3]/td/table/tbody/tr[1]/td").InnerText);
+
+                        Detail details = new Detail();
+                        details.brand = "정보없음";
+                        details.Manufacturer = "정보없음";
+                        details.Origin = document.DocumentNode.SelectSingleNode("//*[@id='Frm']/div/div[2]/div/div[9]/dl[2]/dd").InnerText;
+                        productDetails.detail = new List<Detail>();
+                        productDetails.detail.Add(details);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        error = ex.Message;
+                    }
+                    products.Add(productDetails);
+                }
+
+
+            }
+           (new Repositories()).AddProductDetail(products);
         }
     }
 }

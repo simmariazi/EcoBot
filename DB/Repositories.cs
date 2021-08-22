@@ -116,13 +116,13 @@ namespace EcoBot.DB
 
             string query = string.Empty;
 
-            query += "INSERT INTO product (id, name, productcode, mainImage, description, detail, delivery_id, price, option, seller_id, product_url) VALUES ";
+            query += "INSERT INTO product (id, name, productcode, mainImage, description, detail, deliveryTime, shippingFee, price, option, seller_id, product_url) VALUES ";
 
             for (int i = 0; i < productDetails.Count; i++)
             {
                 //옵션 데이터 확인할 것 
                 query += $"({productDetails[i].id},'{productDetails[i].name}','{productDetails[i].productCode}','{productDetails[i].mainImage}'" +
-                    $"'{productDetails[i].description}', {AddDeliveryinfo(productDetails[i].deliveryInfo.deliveryTime,productDetails[i].deliveryInfo.shippingFee)}, {productDetails[i].price}, '{string.Join(',',productDetails[i].option[0])}', {productDetails[i].sellerId}, '{productDetails[i].productUrl}')";
+                    $"'{productDetails[i].description}', '{productDetails[i].detail}','{productDetails[i].deliveryTime}', {productDetails[i].shippingFee}, {productDetails[i].price}, '{string.Join(',',productDetails[i].option[0])}', {productDetails[i].sellerId}, '{productDetails[i].productUrl}')";
                 if (i < productDetails.Count - 1)
                 {
                     query += ",";
