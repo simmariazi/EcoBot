@@ -425,7 +425,7 @@ namespace EcoBot.Crawling
                         productDetails.option.Add(0, sizes); // 0은 사이즈
 
                         productDetails.deliveryTime = "영업일 기준 16시 이전 주문건에 한하여 당일 출고";
-                        productDetails.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='sit_ov']/div[2]/table/tbody/tr[3]/td").InnerText);
+                        productDetails.shippingFee = document.DocumentNode.SelectSingleNode("//*[@id='sit_ov']/div[2]/table/tbody/tr[3]/td").InnerText;
 
                         Detail details = new Detail();
                         details.brand = "정보없음";
