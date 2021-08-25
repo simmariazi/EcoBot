@@ -381,5 +381,70 @@ namespace EcoBot.Crawling
             }
            (new Repositories()).AddProductDetail(products);
         }
+        public void GetRichbowlDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
+        {
+            string error = string.Empty;
+            ProductDetail productDetails = new ProductDetail();
+            List<ProductDetail> products = new List<ProductDetail>();
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
+                for (int i = 0; i < product.Count; i++)
+                {
+                    productDetails = new ProductDetail();
+                    try
+                    {
+                        //productlist 형식의 product 에 i번째 있는 producturl을 가져와
+                        driver.Url = product[i].productUrl;
+                        driver.Navigate();
+                        HtmlDocument document = new HtmlDocument();
+                        document.LoadHtml(driver.PageSource);
+                        productDetails.id = product[i].id;
+                        productDetails.name = document.DocumentNode.SelectSingleNode("//*[@id='sit_title;]").InnerText;
+                        productDetails.mainImage = document.DocumentNode.SelectSingleNode("//*[@id='sit_pvi_big']/div[1]/div/div/div/a/img").InnerText;
+                        productDetails.productCode = null;
+                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='sit_inf_explan']/center[6]/p[1]/img").InnerText;
+                        productDetails.brandName = null;
+                        productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='sit_ov']/div[2]/table/tbody/tr[1]/td").InnerText);
+                        productDetails.sellerId = product[i].seller_id;
+                        productDetails.productUrl = product[i].productUrl;
+                        //productDetails.ecoCertifications = new List<EcoCertifications>();
+
+                        //status int 형식을 변경 뒤에 1 넣어줌
+                        productDetails.status = 1;
+
+                        productDetails.option = new Dictionary<int, List<string>>();
+                        //productDetails.option.Add(0, document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a").ToList());I
+                        //dictionary 에 담을 list<string> 형태 변수 선언 
+                        List<string> sizes = new List<string>();
+                        var temp = document.DocumentNode.SelectNodes("//*[@id='it_option_1']"); //옵션 재확인 필요 
+                        foreach (var item in temp)
+                        {
+                            sizes.Add(item.InnerText);
+                        }
+                        productDetails.option.Add(0, sizes); // 0은 사이즈
+
+                        productDetails.deliveryTime = "영업일 기준 16시 이전 주문건에 한하여 당일 출고";
+                        productDetails.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='sit_ov']/div[2]/table/tbody/tr[3]/td").InnerText);
+
+                        Detail details = new Detail();
+                        details.brand = "정보없음";
+                        details.Manufacturer = "정보없음";
+                        details.Origin = "정보없음";
+                        productDetails.detail = new List<Detail>();
+                        productDetails.detail.Add(details);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        error = ex.Message;
+                    }
+                    products.Add(productDetails);
+                }
+
+
+            }
+           (new Repositories()).AddProductDetail(products);
+        }
     }
 }
