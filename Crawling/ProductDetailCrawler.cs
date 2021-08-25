@@ -64,7 +64,7 @@ namespace EcoBot.Crawling
                         string a = productDetails.name;
                         productDetails.mainImage = jarray["image"][0].ToString();
                         productDetails.productCode = null;
-                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prod_detail_body']").InnerText;
+                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prod_detail_body']").InnerHtml;
                         //예외처리 추가 brand 값이 없을 때, 브랜드 네임에 "빈칸" 넣어줘
                         if (jarray["brand"] == null)
                         {
@@ -89,8 +89,8 @@ namespace EcoBot.Crawling
                         //productDetails.option.Add(0, document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a").ToList());I
                         //dictionary 에 담을 list<string> 형태 변수 선언 
                         List<string> sizes = new List<string>();
-                        var temp = document.DocumentNode.SelectNodes("//*[@id=prod'_options']/div/div/div[2]/div"); 
-                        foreach (var item in temp) 
+                        var temp = document.DocumentNode.SelectNodes("//*[@id=prod'_options']/div/div/div[2]/div");
+                        foreach (var item in temp)
                         {
                             sizes.Add(item.InnerText);
                         }
@@ -99,8 +99,8 @@ namespace EcoBot.Crawling
 
                         productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[3]/div/div[2]/div").InnerText;
                         // 숫자 가져오는 정규식 문법 regex 사용
-                        productDetails.shippingFee = int.Parse(Regex.Replace(document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[8]/div[2]/span/text()").InnerText, @"D", ""));
-                        
+                        productDetails.shippingFee = Regex.Replace(document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[8]/div[2]/span/text()").InnerText, @"D", "");
+
 
                         Detail details = new Detail();
                         details.brand = jarray["brand"]["name"].ToString();
@@ -155,43 +155,68 @@ namespace EcoBot.Crawling
 
                 try
                 {
+                    //GetRegroundProducts를 통해 얻어온 아이템들이 public void GetRegroundDetail(string productUrl, int seller_id)의 productUrl에 들어가있고, 이 url을 가져옴
                     driver.Url = productUrl;
                     driver.Navigate();
                     Thread.Sleep(300);
 
                     //Xpath 검증필요
+                    // 이동한 url의 상품 디테일 구역
                     string productNodeXpath = "//*[@id='prod_detail']/div";
 
                     HtmlDocument document = new HtmlDocument();
                     document.LoadHtml(driver.PageSource);
 
-                    var products = document.DocumentNode.SelectNodes(productNodeXpath);
 
+                    var products = document.DocumentNode.SelectSingleNode(productNodeXpath);
 
                     //아래로 수정 필요
+                    Detail details = new Detail();
+                    details.brand = "리그라운드";
+                    details.Manufacturer = "리그라운드";
+                    details.Origin = products.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[1]/div[2]/span").InnerText;
+
+
+
+
                     ProductDetail product = new ProductDetail();
-                    product = new ProductDetail()
-                    {
-                        //추가 필요
-                        //detailUrl = productUrl,
-                        //sellerId = seller_id,
-                        //name = "",
-                        //productCode = "",
-                        //detail = { },
-                        //description = "",
-                        //deliveryInfo = { },
-                        //price = 0,
-                        //option = { },
-                        //brandName = "",
-                        //ecoCertifications = { },
-                    };
+
+
+                    //추가 필요
+                    product.sellerId = seller_id;
+                    product.productUrl = productUrl;
+                    product.status = 1;
+
+                    product.brandName = "리그라운드";
+                    product.name = products.SelectSingleNode("//div[@class='view_tit no-margin-top ']").InnerText;
+                    product.mainImage = products.SelectSingleNode("//div[@class='item _item']/img").GetAttributeValue("src", "");
+                    product.price = int.Parse(products.SelectSingleNode("//span[@class='real_price']").InnerText.Replace(",", "").Replace("원", ""));
+                    product.description = products.SelectSingleNode("//*[@class='detail_detail_wrap ']").InnerHtml;
+
+                    product.deliveryTime = products.SelectSingleNode("//div[@class='type01']/strong").InnerText;
+                    product.shippingFee = products.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[6]/div[2]/span").InnerText;
+                    product.detail = new List<Detail> { details };
+                    //url에 상품코드가 있는 경우
+                    //1. 스플릿 등 지지고볶는 방법
+                    //2. 정규표현식을 사용하는 방법
+                    product.productCode = productUrl;
+                    //product.option = new Dictionary<int, List<string>>() { { 0, products.SelectNodes("//div[@class='dropdown-menu']/a/span").Select(d => d.InnerText).ToList() } };
+
+                    //KEY값(INT)과, VALUE(LIST)가 있음
+                    //KEY = 0 
+
+                    product.ecoCertifications = null;
+
+                    productDetail.Add(product);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    string error = ex.Message;
                 }
 
             }
             // 저장
+
             (new Repositories()).AddProductDetail(productDetail);
         }
 
@@ -238,7 +263,7 @@ namespace EcoBot.Crawling
                         productDetails.name = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[3]/div/div[1]/div[2]/div[1]/h2").InnerText;
                         productDetails.mainImage = document.DocumentNode.SelectSingleNode("//*[@id='prdDetail']/div/div[1]/img[2]").InnerText;
                         productDetails.productCode = null;
-                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prdDetail']/div/div[2]/p[2]/img").InnerText;
+                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prdDetail']/div/div[2]/p[2]/img").InnerHtml;
                         productDetails.brandName = null;
                         productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='span_product_price_text']").InnerText);
                         productDetails.sellerId = product[i].seller_id;
@@ -260,7 +285,7 @@ namespace EcoBot.Crawling
                         productDetails.option.Add(0, sizes); // 0은 사이즈
 
                         productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[5]").InnerText;
-                        productDetails.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[4]").InnerText);
+                        productDetails.shippingFee = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[4]").InnerText;
 
 
                         //디테일 수정필요 
@@ -313,7 +338,7 @@ namespace EcoBot.Crawling
                         productDetails.name = document.DocumentNode.SelectSingleNode("//*[@id='Frm']/div/div[2]/div/h1").InnerText;
                         productDetails.mainImage = document.DocumentNode.SelectSingleNode("//*[@id='mainImg']/li/span").InnerText;
                         productDetails.productCode = document.DocumentNode.SelectSingleNode("//*[@id='Frm']/div/div[2]/div/div[9]/dl[1]/dd").InnerText;
-                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='tbContent']/tbody/tr/td/div/p/a/img").InnerText;
+                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='tbContent']/tbody/tr/td/div/p/a/img").InnerHtml;
                         productDetails.brandName = null;
                         productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='TotalGoodsPrice']").InnerText);
                         productDetails.sellerId = product[i].seller_id;
@@ -335,7 +360,7 @@ namespace EcoBot.Crawling
                         productDetails.option.Add(0, sizes); // 0은 사이즈
 
                         productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[1]/div[5]/div[1]/div[6]/table[1]/tbody/tr[3]/td/table/tbody/tr[2]/td/span").InnerText;
-                        productDetails.shippingFee = int.Parse(document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[1]/div[5]/div[1]/div[6]/table[1]/tbody/tr[3]/td/table/tbody/tr[1]/td").InnerText);
+                        productDetails.shippingFee = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[1]/div[5]/div[1]/div[6]/table[1]/tbody/tr[3]/td/table/tbody/tr[1]/td").InnerText;
 
                         Detail details = new Detail();
                         details.brand = "정보없음";

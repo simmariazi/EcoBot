@@ -11,7 +11,8 @@ namespace EcoBot
             //productListCrawler.RepacUrl();
             //productListCrawler.RegroundUrl();
             //productListCrawler.LowlesUrl();
-            productdetailCrawler.GetProductUrl();
+            //productdetailCrawler.GetProductUrl();
+            productdetailCrawler.GetRegroundProducts();
             //productListCrawler.BaseUrl();
 
         }

@@ -20,7 +20,7 @@ namespace EcoBot
         public string description { get; set; }
 
         public string deliveryTime { get; set; }
-        public int shippingFee { get; set; }
+        public string shippingFee { get; set; }
 
 
         public int price { get; set; }

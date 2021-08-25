@@ -103,6 +103,7 @@ namespace EcoBot.DB
                 productLists.Add(new ProductList
                 {
                     id = int.Parse(data["id"].ToString()),
+                    seller_id = int.Parse(data["seller_id"].ToString()),
                     thumbnail = data["thumbnail"].ToString(),
                     productUrl = data["productUrl"].ToString(),
                 });
