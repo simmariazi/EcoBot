@@ -134,87 +134,118 @@ namespace EcoBot.Crawling
 
 
 
-        public void GetRegroundProducts()
+        public IEnumerable<ProductList> GetRegroundUrl()
         {
 
             List<ProductList> products = (new Repositories()).GetProductListsById(2);
-            //1. products 에서 url 활용하기  
-            //2. getdetail 사용하기 
-            foreach (var item in products)
-            {
-                GetRegroundDetail(item.productUrl, item.seller_id);
-            }
+
+            GetRegroundDetail(products);
+            return products;
         }
 
-        public void GetRegroundDetail(string productUrl, int seller_id)
+        public void GetRegroundDetail(List<ProductList> products)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(2);
             List<ProductDetail> productDetail = new List<ProductDetail>();
+            ProductDetail product;
+            Detail details;
+            List<string> options;
             using (IWebDriver driver = new ChromeDriver())
             {
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-
-                try
+                int count = 0;
+                for (int i = 0; i < products.Count; i++)
                 {
-                    //GetRegroundProducts를 통해 얻어온 아이템들이 public void GetRegroundDetail(string productUrl, int seller_id)의 productUrl에 들어가있고, 이 url을 가져옴
-                    driver.Url = productUrl;
-                    driver.Navigate();
-                    Thread.Sleep(300);
 
-                    //Xpath 검증필요
-                    // 이동한 url의 상품 디테일 구역
-                    string productNodeXpath = "//*[@id='prod_detail']/div";
+                    try
+                    {
 
-                    HtmlDocument document = new HtmlDocument();
-                    document.LoadHtml(driver.PageSource);
+                        //GetRegroundProducts를 통해 얻어온 아이템들이 public void GetRegroundDetail(string productUrl, int seller_id)의 productUrl에 들어가있고, 이 url을 가져옴
+                        driver.Url = products[i].productUrl;
+                        driver.Navigate();
+                        Thread.Sleep(700);
+
+                        //Xpath 검증필요
+                        // 이동한 url의 상품 디테일 구역
+                        string productNodeXpath = "//*[@id='prod_detail']/div";
+
+                        HtmlDocument document = new HtmlDocument();
+                        document.LoadHtml(driver.PageSource);
+
+                        var productDocument = document.DocumentNode.SelectSingleNode(productNodeXpath);
+                        if (productDocument == null)
+                        {
+                            Thread.Sleep(500);
+                            productDocument = document.DocumentNode.SelectSingleNode(productNodeXpath);
+
+                            if (productDocument == null)
+                            {
+                                continue;
+                            }
+                        }
+                       
+                        product = new ProductDetail();
+                        //아래로 수정 필요
+                        details = new Detail();
+                        details.brand = "리그라운드";
+                        details.Manufacturer = "리그라운드";
+                        details.Origin = productDocument.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[1]/div[2]/span").InnerText;
 
 
-                    var products = document.DocumentNode.SelectSingleNode(productNodeXpath);
+                        //추가 필요
+                        product.id = products[i].id;
+                        product.sellerId = products[i].seller_id;
+                        product.productUrl = products[i].productUrl;
+                        product.status = 1;
 
-                    //아래로 수정 필요
-                    Detail details = new Detail();
-                    details.brand = "리그라운드";
-                    details.Manufacturer = "리그라운드";
-                    details.Origin = products.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[1]/div[2]/span").InnerText;
+                        product.brandName = "리그라운드";
+                        product.name = productDocument.SelectSingleNode("//div[@class='view_tit no-margin-top ']").InnerText.Trim();
+                        if (product.name.Contains("SOLDOUT"))
+                        {
+                            product.status = 0;
+                        }
+
+                        product.mainImage = productDocument.SelectSingleNode("//div[@class='item _item']/img").GetAttributeValue("src", "");
+                        product.price = int.Parse(productDocument.SelectSingleNode("//span[@class='real_price']").InnerText.Replace(",", "").Replace("원", ""));
+                        product.description = productDocument.SelectSingleNode("//*[@class='detail_detail_wrap ']").InnerHtml.Replace("'", "").Trim();
+
+                        product.deliveryTime = productDocument.SelectSingleNode("//div[@class='type01']/strong").InnerText.Trim();
+                        product.shippingFee = productDocument.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[6]/div[2]/span").InnerText;
+                        product.shippingFee = product.shippingFee.Replace("popover", "").Trim();
+
+                        product.detail = new List<Detail> { details };
+                        //url에 상품코드가 있는 경우
+                        //1. 스플릿 등 지지고볶는 방법
+                        //2. 정규표현식을 사용하는 방법
+                        product.productCode = products[i].productUrl.Split('=')[1];
+                        //https://re-ground.co.kr//shop_view/?idx=81
+                        //split을 하게 되면 배열이 생성됨. =을 기준으로 2개가 생성되었기 때문에, 두번째 값인 1을 사용하게 됨
+                        //예를 들어 = 이 3개면 4개짜리 배열이 생성됨
 
 
+                        product.option = new Dictionary<int, List<string>>();
 
+                        options = new List<string>();
+                        var temp = document.DocumentNode.SelectNodes("//div[@class='dropdown-menu']/div/a/span");
+                        if (temp != null)
+                        {
+                            foreach (var item in temp)
+                            {
+                                options.Add(item.InnerText.Trim());
+                            }
+                        }
 
-                    ProductDetail product = new ProductDetail();
+                        product.option.Add(0, options);
 
+                        product.ecoCertifications = null;
 
-                    //추가 필요
-                    product.sellerId = seller_id;
-                    product.productUrl = productUrl;
-                    product.status = 1;
-
-                    product.brandName = "리그라운드";
-                    product.name = products.SelectSingleNode("//div[@class='view_tit no-margin-top ']").InnerText;
-                    product.mainImage = products.SelectSingleNode("//div[@class='item _item']/img").GetAttributeValue("src", "");
-                    product.price = int.Parse(products.SelectSingleNode("//span[@class='real_price']").InnerText.Replace(",", "").Replace("원", ""));
-                    product.description = products.SelectSingleNode("//*[@class='detail_detail_wrap ']").InnerHtml;
-
-                    product.deliveryTime = products.SelectSingleNode("//div[@class='type01']/strong").InnerText;
-                    product.shippingFee = products.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[6]/div[2]/span").InnerText;
-                    product.detail = new List<Detail> { details };
-                    //url에 상품코드가 있는 경우
-                    //1. 스플릿 등 지지고볶는 방법
-                    //2. 정규표현식을 사용하는 방법
-                    product.productCode = productUrl;
-                    //product.option = new Dictionary<int, List<string>>() { { 0, products.SelectNodes("//div[@class='dropdown-menu']/a/span").Select(d => d.InnerText).ToList() } };
-
-                    //KEY값(INT)과, VALUE(LIST)가 있음
-                    //KEY = 0 
-
-                    product.ecoCertifications = null;
-
-                    productDetail.Add(product);
+                        productDetail.Add(product);
+                    }
+                    catch (Exception ex)
+                    {
+                        string error = ex.Message;
+                    }
                 }
-                catch (Exception ex)
-                {
-                    string error = ex.Message;
-                }
-
             }
             // 저장
 
