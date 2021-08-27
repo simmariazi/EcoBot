@@ -117,13 +117,13 @@ namespace EcoBot.DB
 
             string query = string.Empty;
 
-            query += "INSERT INTO product (id, name, productcode, mainImage, description, detail, deliveryTime, shippingFee, price, option, seller_id, product_url) VALUES ";
+            query += "INSERT INTO product (id, name, productcode, mainImage, description, detail, deliveryTime, shippingFee, price, product.option, seller_id, product_url) VALUES ";
 
             for (int i = 0; i < productDetails.Count; i++)
             {
                 //옵션 데이터 확인할 것 
-                query += $"({productDetails[i].id},'{productDetails[i].name}','{productDetails[i].productCode}','{productDetails[i].mainImage}'" +
-                    $"'{productDetails[i].description}', '{productDetails[i].detail}','{productDetails[i].deliveryTime}', {productDetails[i].shippingFee}, {productDetails[i].price}, '{string.Join(',',productDetails[i].option[0])}', {productDetails[i].sellerId}, '{productDetails[i].productUrl}')";
+                query += $"({productDetails[i].id},'{productDetails[i].name}','{productDetails[i].productCode}','{productDetails[i].mainImage}'," +
+                         $"'{productDetails[i].description}', '{string.Join('|',productDetails[i].detail.Select(d=> "[{\"brand\" : \"" + d.brand+ "\",\"manufacturer\":\""+d.Manufacturer+ "\",\"origin\" : " + "\""+d.Origin+"\"}]").ToList())}','{productDetails[i].deliveryTime}', '{productDetails[i].shippingFee}', {productDetails[i].price}, '{string.Join(',',productDetails[i].option[0])}', {productDetails[i].sellerId}, '{productDetails[i].productUrl}')";
                 if (i < productDetails.Count - 1)
                 {
                     query += ",";

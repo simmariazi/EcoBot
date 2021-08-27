@@ -64,7 +64,7 @@ namespace EcoBot.Crawling
                         string a = productDetails.name;
                         productDetails.mainImage = jarray["image"][0].ToString();
                         productDetails.productCode = null;
-                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prod_detail_body']").InnerHtml;
+                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prod_detail_body']").InnerHtml.Replace("'", "");
                         //예외처리 추가 brand 값이 없을 때, 브랜드 네임에 "빈칸" 넣어줘
                         if (jarray["brand"] == null)
                         {
@@ -89,21 +89,22 @@ namespace EcoBot.Crawling
                         //productDetails.option.Add(0, document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a").ToList());I
                         //dictionary 에 담을 list<string> 형태 변수 선언 
                         List<string> sizes = new List<string>();
-                        var temp = document.DocumentNode.SelectNodes("//*[@id=prod'_options']/div/div/div[2]/div");
+                        var temp = document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div/div");
                         foreach (var item in temp)
                         {
-                            sizes.Add(item.InnerText);
+                            sizes.Add(item.InnerText.Trim());
                         }
                         productDetails.option.Add(0, sizes); // 0은 사이즈
 
 
-                        productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[3]/div/div[2]/div").InnerText;
+                        productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[3]/div/div[2]/div").InnerText.Trim();
                         // 숫자 가져오는 정규식 문법 regex 사용
-                        productDetails.shippingFee = Regex.Replace(document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[8]/div[2]/span/text()").InnerText, @"D", "");
+                        productDetails.shippingFee = document.DocumentNode.SelectSingleNode("//span[contains(text(),'배송비')]/parent::div/parent::div/div/span[contains(@class, 'option_data')]").InnerText;
+                        productDetails.shippingFee = productDetails.shippingFee.Replace("popover", "");
 
 
                         Detail details = new Detail();
-                        details.brand = jarray["brand"]["name"].ToString();
+                        details.brand = productDetails.brandName;
                         details.Manufacturer = document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[1]/div[2]/span").InnerText;
                         details.Origin = "정보없음";
                         productDetails.detail = new List<Detail>();
