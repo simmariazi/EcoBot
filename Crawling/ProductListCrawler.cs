@@ -335,7 +335,7 @@ namespace EcoBot.Crawling
                         product = new ProductList()
                         {
                             thumbnail = products[j].SelectNodes("//img[@class='hover']")[j].GetAttributeValue("src", ""),
-                            productUrl = "https://lowles.kr/" + products[j].SelectNodes("//div[@class='thumbnail']/a")[j].GetAttributeValue("href", ""),
+                            productUrl = "https://lowles.kr" + products[j].SelectNodes("//div[@class='thumbnail']/a")[j].GetAttributeValue("href", ""),
                             seller_id = sellerId,
                         };
                         int ignore = 0;

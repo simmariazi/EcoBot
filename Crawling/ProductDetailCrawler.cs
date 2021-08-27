@@ -293,11 +293,11 @@ namespace EcoBot.Crawling
                         document.LoadHtml(driver.PageSource);
                         productDetails.id = product[i].id;
                         productDetails.name = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[3]/div/div[1]/div[2]/div[1]/h2").InnerText;
-                        productDetails.mainImage = document.DocumentNode.SelectSingleNode("//*[@id='prdDetail']/div/div[1]/img[2]").InnerText;
-                        productDetails.productCode = null;
-                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='prdDetail']/div/div[2]/p[2]/img").InnerHtml;
-                        productDetails.brandName = null;
-                        productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='span_product_price_text']").InnerText);
+                        productDetails.mainImage = "https:" + product[i].thumbnail;
+                        productDetails.productCode = document.DocumentNode.SelectSingleNode("//a[@class='size_guide_info']").GetAttributeValue("product_no", "");
+                        productDetails.description = document.DocumentNode.SelectSingleNode("//div[@id='prdDetail']/div").InnerHtml;
+                        productDetails.brandName = "lowles";
+                        productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='span_product_price_text']").InnerText.Replace("원","").Replace(",",""));
                         productDetails.sellerId = product[i].seller_id;
                         productDetails.productUrl = product[i].productUrl;
                         //productDetails.ecoCertifications = new List<EcoCertifications>();
@@ -308,25 +308,25 @@ namespace EcoBot.Crawling
                         productDetails.option = new Dictionary<int, List<string>>();
                         //productDetails.option.Add(0, document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a").ToList());I
                         //dictionary 에 담을 list<string> 형태 변수 선언 
-                        List<string> sizes = new List<string>();
-                        var temp = document.DocumentNode.SelectNodes("//*[@id='product_option_id1']");
+                        List<string> option = new List<string>();
+                        var temp = document.DocumentNode.SelectNodes("//optgroup[@label='옵션']/option");
                         foreach (var item in temp)
                         {
-                            sizes.Add(item.InnerText);
+                            option.Add(item.InnerText);
                         }
-                        productDetails.option.Add(0, sizes); // 0은 사이즈
+                        productDetails.option.Add(0, option); // 0은 사이즈
 
-                        productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[5]").InnerText;
-                        productDetails.shippingFee = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[4]").InnerText;
+                        productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[6]").InnerText;
+                        productDetails.shippingFee = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[5]").InnerText;
 
-
+                        
                         //디테일 수정필요 
-                        //Detail details = new Detail();
-                        //details.brand = ;
-                        //details.Manufacturer = document.DocumentNode.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[1]/div[2]/span").InnerText;
-                        //details.Origin = "정보없음";
-                        //productDetails.detail = new List<Detail>();
-                        //productDetails.detail.Add(details);
+                        Detail details = new Detail();
+                        details.brand = "lowles";
+                        details.Manufacturer = "제품 내 별도표기";
+                        details.Origin = "정보없음";
+                        productDetails.detail = new List<Detail>();
+                        productDetails.detail.Add(details);
 
 
                         // deliveryinfo함수랑 객체 연습하고 나서  deliveryinfo는 deliveryinfo type이고, deliveryinfo 안에 deliverytime, shippingfee 있음 
