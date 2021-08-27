@@ -17,18 +17,6 @@ namespace EcoBot.Crawling
 {
     public class ProductListCrawler : BaseCrawler
     {
-        //public void memo()
-        //{
-        //    // 상속 받은 BaseCrawler 클래스에서 InheritanceExample 함수 사용 예시
-        //    string sample = InheritanceExample("랄라");
-
-        //    // 의미 없는 for문 테스트
-        //    for (int i = 0; i < sample.Length; i++)
-        //    {
-        //        Console.WriteLine(sample);
-        //    }
-        //}
-
         //잡 테이블에 있는 데이터불러오기
 
         //잡에있는 데이터 중 리팩의 url만 불러옴
@@ -216,16 +204,7 @@ namespace EcoBot.Crawling
                 }
             }
 
-            //List<ProductList> result = new List<ProductList>();
-
-            // result는 is_used 0으로 만들 애들.
-            //근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
-            //result = confirm.Where(p => productList.Count(s => p.productUrl.Contains(s.productUrl)) > 0).ToList();
-
-            //업데이트(soft delete)
-            //(new Repositories()).DeleteProductList(result);
-
-            // 저장
+         
             (new Repositories()).AddProductList(productList);
         }
 
@@ -292,16 +271,6 @@ namespace EcoBot.Crawling
                 }
             }
 
-            //List<ProductList> result = new List<ProductList>();
-
-            //// result는 is_used 0으로 만들 애들.
-            ////근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
-            //result = confirm.Where(p => productList.Count(s => p.productUrl.Contains(s.productUrl)) > 0).ToList();
-
-            ////업데이트(soft delete)
-            //(new Repositories()).DeleteProductList(result);
-
-            // 저장
             (new Repositories()).AddProductList(productList);
         }
 
@@ -451,7 +420,6 @@ namespace EcoBot.Crawling
             }
 
 
-            // 저장
             (new Repositories()).AddProductList(productList);
         }
 
@@ -483,7 +451,7 @@ namespace EcoBot.Crawling
                     {
                         product = new ProductList()
                         {
-                            //Todo 수정필요
+                           
                             thumbnail = products[j].SelectNodes("//a[@class='sct_a']/img")[j].GetAttributeValue("src", ""),
                             productUrl = products[j].SelectNodes("//a[@class='sct_a']")[j].GetAttributeValue("href", ""),
                             seller_id = sellerId,
@@ -512,7 +480,7 @@ namespace EcoBot.Crawling
                 }
             }
 
-       // 저장
+    
        (new Repositories()).AddProductList(productList);
         }
     }
