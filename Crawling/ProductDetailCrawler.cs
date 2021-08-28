@@ -183,7 +183,7 @@ namespace EcoBot.Crawling
                                 continue;
                             }
                         }
-                       
+
                         product = new ProductDetail();
                         //아래로 수정 필요
                         details = new Detail();
@@ -297,7 +297,7 @@ namespace EcoBot.Crawling
                         productDetails.productCode = document.DocumentNode.SelectSingleNode("//a[@class='size_guide_info']").GetAttributeValue("product_no", "");
                         productDetails.description = document.DocumentNode.SelectSingleNode("//div[@id='prdDetail']/div").InnerHtml;
                         productDetails.brandName = "lowles";
-                        productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='span_product_price_text']").InnerText.Replace("원","").Replace(",",""));
+                        productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='span_product_price_text']").InnerText.Replace("원", "").Replace(",", ""));
                         productDetails.sellerId = product[i].seller_id;
                         productDetails.productUrl = product[i].productUrl;
                         //productDetails.ecoCertifications = new List<EcoCertifications>();
@@ -319,7 +319,7 @@ namespace EcoBot.Crawling
                         productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[6]").InnerText;
                         productDetails.shippingFee = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[5]").InnerText;
 
-                        
+
                         //디테일 수정필요 
                         Detail details = new Detail();
                         details.brand = "lowles";
@@ -347,6 +347,16 @@ namespace EcoBot.Crawling
             }
             (new Repositories()).AddProductDetail(products);
         }
+        public IEnumerable<ProductList> GetNeezmallUrl ()
+        {
+
+            List<ProductList> products = (new Repositories()).GetProductListsById(4);
+
+            GetNeezmallDetail(products);
+
+            return products;
+        }
+       
 
         public void GetNeezmallDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
         {
@@ -366,13 +376,14 @@ namespace EcoBot.Crawling
                         driver.Navigate();
                         HtmlDocument document = new HtmlDocument();
                         document.LoadHtml(driver.PageSource);
+
                         productDetails.id = product[i].id;
-                        productDetails.name = document.DocumentNode.SelectSingleNode("//*[@id='Frm']/div/div[2]/div/h1").InnerText;
-                        productDetails.mainImage = document.DocumentNode.SelectSingleNode("//*[@id='mainImg']/li/span").InnerText;
+                        productDetails.name = document.DocumentNode.SelectSingleNode("//*[@id='Frm']/div/div[2]/div/h1").InnerText.Trim();
+                        productDetails.mainImage = "https://www.neezmall.com" + document.DocumentNode.SelectSingleNode("//ul[@id='mainImg']/li/span/img").GetAttributeValue("src", "");
                         productDetails.productCode = document.DocumentNode.SelectSingleNode("//*[@id='Frm']/div/div[2]/div/div[9]/dl[1]/dd").InnerText;
-                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='tbContent']/tbody/tr/td/div/p/a/img").InnerHtml;
-                        productDetails.brandName = null;
-                        productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='TotalGoodsPrice']").InnerText);
+                        productDetails.description = document.DocumentNode.SelectSingleNode("//a[@data-goodscontent='contentimg']/img").GetAttributeValue("src", "");
+                        productDetails.brandName = "정보없음";
+                        productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='TotalGoodsPrice']").InnerText.Replace(",", ""));
                         productDetails.sellerId = product[i].seller_id;
                         productDetails.productUrl = product[i].productUrl;
                         //productDetails.ecoCertifications = new List<EcoCertifications>();
@@ -382,17 +393,42 @@ namespace EcoBot.Crawling
 
                         productDetails.option = new Dictionary<int, List<string>>();
                         //productDetails.option.Add(0, document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a").ToList());I
-                        //dictionary 에 담을 list<string> 형태 변수 선언 
-                        List<string> sizes = new List<string>();
-                        var temp = document.DocumentNode.SelectNodes("//*[@id='optList']"); //옵션 재확인 필요 
-                        foreach (var item in temp)
-                        {
-                            sizes.Add(item.InnerText);
-                        }
-                        productDetails.option.Add(0, sizes); // 0은 사이즈
+                        //dictionary 에 담을 list<string> 형태 변수 선언
+                        //
+                        List<string> option = new List<string>();
+                        var temp = document.DocumentNode.SelectNodes("//div/div[2]/select[@class='select_fild'][@name='itemUid']/option");
+                        //옵션 밸류가 "==(필수)옵션" 으로 시작하는 것 제거 필요
+                        //딕셔너리로 단가표를 수집 한다. 각 사이즈별 단가 매칭 필요
+                        //소 - 151, 중 - 215, 대 - 293
+                        Dictionary<string, int> dictionary = new Dictionary<string, int>();
+                        var pricelist = document.DocumentNode.SelectNodes("//dl[@class='option_section']/dd/table/tbody/tr/td").Select(d => d.InnerText.Replace("~", "").Replace(",", "")).ToList();
+                        //수집한 옵션에서 반을 나눠 앞에 반과 뒤에 반 옵션을 각각 매칭 해야 함
+                        //앞에 반은 스트링, 뒤에 반은 숫자
 
-                        productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[1]/div[5]/div[1]/div[6]/table[1]/tbody/tr[3]/td/table/tbody/tr[2]/td/span").InnerText;
-                        productDetails.shippingFee = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[1]/div[5]/div[1]/div[6]/table[1]/tbody/tr[3]/td/table/tbody/tr[1]/td").InnerText;
+                        if (pricelist.Count <= 10)
+                        {
+
+                            for (int index = 0; index < pricelist.Count / 2; index++)
+                            {
+                                dictionary.Add(pricelist[index], int.Parse(pricelist[index + (pricelist.Count / 2)]));
+                            }
+
+                            foreach (var item in dictionary)
+                            {
+                                if (!item.Key.Equals("수량"))
+                                {
+                                    option.Add(item.Key + " - " + (item.Value * dictionary["수량"]));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            option.Add("판매처 페이지 참조");
+                        }
+                        productDetails.option.Add(0, option); // 0은 사이즈
+
+                        productDetails.deliveryTime = "판매처 페이지 참조";
+                        productDetails.shippingFee = "판매처 페이지 참조";
 
                         Detail details = new Detail();
                         details.brand = "정보없음";
