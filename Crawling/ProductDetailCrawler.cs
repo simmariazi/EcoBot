@@ -449,6 +449,15 @@ namespace EcoBot.Crawling
             }
            (new Repositories()).AddProductDetail(products);
         }
+        public IEnumerable<ProductList> GetRichbowlUrl()
+        {
+
+            List<ProductList> products = (new Repositories()).GetProductListsById(5);
+
+            GetRichbowlDetail(products);
+
+            return products;
+        }
         public void GetRichbowlDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
         {
             string error = string.Empty;
@@ -468,12 +477,15 @@ namespace EcoBot.Crawling
                         HtmlDocument document = new HtmlDocument();
                         document.LoadHtml(driver.PageSource);
                         productDetails.id = product[i].id;
-                        productDetails.name = document.DocumentNode.SelectSingleNode("//*[@id='sit_title;]").InnerText;
-                        productDetails.mainImage = document.DocumentNode.SelectSingleNode("//*[@id='sit_pvi_big']/div[1]/div/div/div/a/img").InnerText;
-                        productDetails.productCode = null;
-                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='sit_inf_explan']/center[6]/p[1]/img").InnerText;
-                        productDetails.brandName = null;
-                        productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//*[@id='sit_ov']/div[2]/table/tbody/tr[1]/td").InnerText);
+                        productDetails.name = document.DocumentNode.SelectSingleNode("//h2[@id='sit_title']").InnerText.Replace("요약정보 및 구매", "");
+                        productDetails.mainImage = document.DocumentNode.SelectSingleNode("//*[@id='sit_pvi_big']/div[1]/div/div[1]/div/a/img").GetAttributeValue("src", "");
+                        productDetails.productCode = product[i].productUrl.Split('=')[1];
+                        productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='sit_inf_explan']").InnerHtml.Replace("'", "").Trim();
+                        productDetails.brandName = "리치볼";
+                        //만약 판매가격이 0원이면 수집하지 않는다 
+        
+                        productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//tr/th[contains(text(),'판매가격')]/parent::tr/td").InnerText.Replace("원","").Replace(",","").Trim());
+
                         productDetails.sellerId = product[i].seller_id;
                         productDetails.productUrl = product[i].productUrl;
                         //productDetails.ecoCertifications = new List<EcoCertifications>();
@@ -485,20 +497,37 @@ namespace EcoBot.Crawling
                         //productDetails.option.Add(0, document.DocumentNode.SelectNodes("//*[@id='prod_options']/div/div/div[2]/a").ToList());I
                         //dictionary 에 담을 list<string> 형태 변수 선언 
                         List<string> sizes = new List<string>();
-                        var temp = document.DocumentNode.SelectNodes("//*[@id='it_option_1']"); //옵션 재확인 필요 
-                        foreach (var item in temp)
+                        var temp = document.DocumentNode.SelectNodes("//tr/th/label[contains(text(),'제품수량')]/parent::th/parent::tr/td");
+                        if (temp != null)
                         {
-                            sizes.Add(item.InnerText);
+                            foreach (var item in temp)
+                            {
+                                sizes.Add(item.InnerText.Replace("&nbsp;&nbsp;", ""));
+                            }
                         }
+                        else
+                        {
+                            sizes.Add("판매처 페이지 참조");
+                        }
+                       
                         productDetails.option.Add(0, sizes); // 0은 사이즈
 
-                        productDetails.deliveryTime = "영업일 기준 16시 이전 주문건에 한하여 당일 출고";
-                        productDetails.shippingFee = document.DocumentNode.SelectSingleNode("//*[@id='sit_ov']/div[2]/table/tbody/tr[3]/td").InnerText;
+                        productDetails.deliveryTime = "상세페이지 참조";
+                        productDetails.shippingFee = "상세페이지 참조";
 
                         Detail details = new Detail();
-                        details.brand = "정보없음";
+                        details.brand = productDetails.brandName;
+                        //div[@class='sit_ov_tbl']/table/tbody/tr[2]/td
                         details.Manufacturer = "정보없음";
-                        details.Origin = "정보없음";
+                        
+                        if (details.Origin != null)
+                        {
+                            details.Origin = document.DocumentNode.SelectSingleNode("//tr/th[contains(text(),'원산지')]/parent::tr/td").InnerText;
+                        }
+                        else
+                        {
+                            details.Origin = "정보없음";
+                        }
                         productDetails.detail = new List<Detail>();
                         productDetails.detail.Add(details);
 
