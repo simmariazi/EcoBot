@@ -203,8 +203,8 @@ namespace EcoBot.Crawling
 
                 }
             }
+            DeleteProduct(confirm, productList);
 
-         
             (new Repositories()).AddProductList(productList);
         }
 
@@ -270,7 +270,7 @@ namespace EcoBot.Crawling
                     string error = ex.Message;
                 }
             }
-
+            DeleteProduct(confirm, productList);
             (new Repositories()).AddProductList(productList);
         }
 
@@ -330,9 +330,9 @@ namespace EcoBot.Crawling
                     string error = ex.Message;
                 }
             }
-
+            DeleteProduct(confirm, productList);
             // 저장
-             (new Repositories()).AddProductList(productList);
+            (new Repositories()).AddProductList(productList);
         }
 
 
@@ -418,7 +418,7 @@ namespace EcoBot.Crawling
                     }
                 }
             }
-
+            DeleteProduct(confirm, productList);
 
             (new Repositories()).AddProductList(productList);
         }
@@ -451,7 +451,7 @@ namespace EcoBot.Crawling
                     {
                         product = new ProductList()
                         {
-                           
+
                             thumbnail = products[j].SelectNodes("//a[@class='sct_a']/img")[j].GetAttributeValue("src", ""),
                             productUrl = products[j].SelectNodes("//a[@class='sct_a']")[j].GetAttributeValue("href", ""),
                             seller_id = sellerId,
@@ -479,9 +479,35 @@ namespace EcoBot.Crawling
                     string error = ex.Message;
                 }
             }
+            DeleteProduct(confirm, productList);
 
-    
        (new Repositories()).AddProductList(productList);
+        }
+
+        private void DeleteProduct(List<ProductList> confirmProducts, List<ProductList> products)
+        {
+            List<ProductList> deleteProducts = new List<ProductList>();
+            int confirmCount = 0;
+            // 3.confirm에는 있는데 product의 url에는 없으면 데이터베이스에서 confirm에만 있는 데이터를 삭제
+            //confirm 리스트에 있는 값 - product 리스트에 있는 값 = (a)
+            for (int i = 0; i < confirmProducts.Count; i++)
+            {
+                confirmCount = 0;
+                for (int j = 0; j < products.Count; j++)
+                {
+                    if (confirmProducts[i].productUrl.Equals(confirmProducts[j].productUrl))
+                    {
+                        confirmCount++;
+                    }
+
+                    if (confirmCount == 0)
+                    {
+                        deleteProducts.Add(confirmProducts[i]);
+                    }
+                }
+            }
+               //a를 신규 리스트에 임시저장하고, 임시 저장한 a값을 데이터에서 삭제하는 로직 추가
+               (new Repositories()).DeleteConfirmList(deleteProducts);
         }
     }
 }

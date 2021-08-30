@@ -78,6 +78,27 @@ namespace EcoBot.DB
             return callDb.Insert(query);
         }
 
+        public bool DeleteConfirmList(List<ProductList> deleteProducts)
+        {
+            CallDb callDb = new CallDb();
+
+            string query = string.Empty;
+            string deleteList = string.Empty;
+
+            for (int i = 0; i < deleteProducts.Count; i++)
+            {
+                deleteList += deleteProducts[i].id;
+                if (i < deleteProducts.Count - 1)
+                {
+                    deleteList += ",";
+                }
+            }
+
+            query = $"DELETE FROM productList WHERE id IN ( {deleteList})";
+
+            return callDb.Update(query);
+        }
+
         public bool DeleteProductList(List<ProductList> productLists)
         {
             CallDb callDb = new CallDb();
@@ -123,14 +144,14 @@ namespace EcoBot.DB
             {
                 //옵션 데이터 확인할 것 
                 query += $"({productDetails[i].id},'{productDetails[i].name}','{productDetails[i].productCode}','{productDetails[i].mainImage}'," +
-                         $"'{productDetails[i].description}', '{string.Join('|',productDetails[i].detail.Select(d=> "[{\"brand\" : \"" + d.brand+ "\",\"manufacturer\":\""+d.Manufacturer+ "\",\"origin\" : " + "\""+d.Origin+"\"}]").ToList())}','{productDetails[i].deliveryTime}', '{productDetails[i].shippingFee}', {productDetails[i].price}, '{string.Join(',',productDetails[i].option[0])}', {productDetails[i].sellerId}, '{productDetails[i].productUrl}',{productDetails[i].status})";
+                         $"'{productDetails[i].description}', '{string.Join('|', productDetails[i].detail.Select(d => "[{\"brand\" : \"" + d.brand + "\",\"manufacturer\":\"" + d.Manufacturer + "\",\"origin\" : " + "\"" + d.Origin + "\"}]").ToList())}','{productDetails[i].deliveryTime}', '{productDetails[i].shippingFee}', {productDetails[i].price}, '{string.Join(',', productDetails[i].option[0])}', {productDetails[i].sellerId}, '{productDetails[i].productUrl}',{productDetails[i].status})";
                 if (i < productDetails.Count - 1)
                 {
                     query += ",";
                 }
 
             }
-           
+
             return callDb.Insert(query);
         }
         public int AddDeliveryinfo(string deliveryTime, int shippingFee)
@@ -142,14 +163,14 @@ namespace EcoBot.DB
             query += "INSERT INTO deliveryinfo (deliveryTime, shippingFee) VALUES ";
             query += $"('{deliveryTime}', {shippingFee})";
 
-             callDb.Insert(query);
+            callDb.Insert(query);
             var productData = callDb.Select("SELECT MAX(id) as id from deliveryinfo");
 
             int id = 0;
             foreach (DataRow data in productData.Tables[0].Rows)
             {
                 id = int.Parse(data["id"].ToString());
-                  
+
             }
 
             return id;
