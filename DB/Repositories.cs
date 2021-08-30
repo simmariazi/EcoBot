@@ -112,7 +112,7 @@ namespace EcoBot.DB
 
             query = $"DELETE FROM productList WHERE id IN ( {deleteList})";
 
-            return callDb.Update(query);
+            return callDb.Delete(query);
         }
 
         public bool DeleteProductList(List<ProductList> productLists)
