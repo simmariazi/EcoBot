@@ -17,15 +17,44 @@ namespace EcoBot.Crawling
 {
     public class ProductDetailCrawler : BaseCrawler
     {
-        // productlist 테이블에 있는 producturl불러오기
-        public IEnumerable<ProductList> GetProductUrl()
+        public void GetProductDetails()
         {
+            List<int> sellers = (new Repositories()).GetSellerIds();
+            List<ProductList> products = new List<ProductList>();
+            List<ProductList> detailProducts;
+            Dictionary<int, List<ProductList>> allPorducts = new Dictionary<int, List<ProductList>>();
+            for (int i = 0; i < sellers.Count; i++)
+            {
+                products.AddRange((new Repositories()).GetProductListsById(i));
+            }
 
+            for (int i = 0; i < sellers.Count; i++)
+            {
+                detailProducts = new List<ProductList>();
+                for (int j = 0; j < products.Count; j++)
+                {
+                    if (products[i].seller_id.Equals(sellers[i]))
+                    {
+                        detailProducts.Add(products[i]);
+                    }
+                }
+                allPorducts.Add(sellers[i], detailProducts);
+            }
+                        
+            GetRepacDetail(allPorducts[1]);
+            GetRegroundDetail(allPorducts[2]);
+            GetLowlesDetail(allPorducts[3]);
+            GetNeezmallDetail(allPorducts[4]);
+            GetRichbowlDetail(allPorducts[5]);
+        }
+
+
+        // productlist 테이블에 있는 producturl불러오기
+        public List<ProductList> GetRepacUrl()
+        {
             List<ProductList> products = (new Repositories()).GetProductListsById(1);
-            //1. products 에서 url 활용하기  
-            //2. getdetail 사용하기 
 
-            GetDetail(products);
+            GetRepacDetail(products);
 
             return products;
         }
@@ -38,7 +67,7 @@ namespace EcoBot.Crawling
         /// <param name="productInfo"> 상품정보 </param>
         /// <param name="url">상세페이지 url</param>
         /// <param name="InnerText"> 세부정보 </param>
-        public void GetDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
+        public void GetRepacDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
         {
             string error = string.Empty;
             ProductDetail productDetails = new ProductDetail();
@@ -128,15 +157,12 @@ namespace EcoBot.Crawling
 
             }
             (new Repositories()).AddProductDetail(products);
-
-
         }
 
 
 
-        public IEnumerable<ProductList> GetRegroundUrl()
+        public List<ProductList> GetRegroundUrl()
         {
-
             List<ProductList> products = (new Repositories()).GetProductListsById(2);
 
             GetRegroundDetail(products);
@@ -347,7 +373,7 @@ namespace EcoBot.Crawling
             }
             (new Repositories()).AddProductDetail(products);
         }
-        public IEnumerable<ProductList> GetNeezmallUrl ()
+        public List<ProductList> GetNeezmallUrl()
         {
 
             List<ProductList> products = (new Repositories()).GetProductListsById(4);
@@ -356,7 +382,7 @@ namespace EcoBot.Crawling
 
             return products;
         }
-       
+
 
         public void GetNeezmallDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
         {
@@ -449,7 +475,7 @@ namespace EcoBot.Crawling
             }
            (new Repositories()).AddProductDetail(products);
         }
-        public IEnumerable<ProductList> GetRichbowlUrl()
+        public List<ProductList> GetRichbowlUrl()
         {
 
             List<ProductList> products = (new Repositories()).GetProductListsById(5);
@@ -483,8 +509,8 @@ namespace EcoBot.Crawling
                         productDetails.description = document.DocumentNode.SelectSingleNode("//*[@id='sit_inf_explan']").InnerHtml.Replace("'", "").Trim();
                         productDetails.brandName = "리치볼";
                         //만약 판매가격이 0원이면 수집하지 않는다 
-        
-                        productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//tr/th[contains(text(),'판매가격')]/parent::tr/td").InnerText.Replace("원","").Replace(",","").Trim());
+
+                        productDetails.price = int.Parse(document.DocumentNode.SelectSingleNode("//tr/th[contains(text(),'판매가격')]/parent::tr/td").InnerText.Replace("원", "").Replace(",", "").Trim());
 
                         productDetails.sellerId = product[i].seller_id;
                         productDetails.productUrl = product[i].productUrl;
@@ -509,7 +535,7 @@ namespace EcoBot.Crawling
                         {
                             sizes.Add("판매처 페이지 참조");
                         }
-                       
+
                         productDetails.option.Add(0, sizes); // 0은 사이즈
 
                         productDetails.deliveryTime = "상세페이지 참조";
@@ -519,7 +545,7 @@ namespace EcoBot.Crawling
                         details.brand = productDetails.brandName;
                         //div[@class='sit_ov_tbl']/table/tbody/tr[2]/td
                         details.Manufacturer = "정보없음";
-                        
+
                         if (details.Origin != null)
                         {
                             details.Origin = document.DocumentNode.SelectSingleNode("//tr/th[contains(text(),'원산지')]/parent::tr/td").InnerText;

@@ -57,6 +57,22 @@ namespace EcoBot.DB
             return jobs;
         }
 
+        public List<int> GetSellerIds()
+        {
+            List<int> sellerIds = new List<int>();
+
+            CallDb callDb = new CallDb();
+
+            var sellerData = callDb.Select($"SELECT s.id FROM seller s");
+
+            foreach (DataRow data in sellerData.Tables[0].Rows)
+            {
+                sellerIds.Add(int.Parse(data["id"].ToString()));
+            }
+
+            return sellerIds;
+        }
+
         public bool AddProductList(List<ProductList> productLists)
         {
             CallDb callDb = new CallDb();
@@ -132,6 +148,39 @@ namespace EcoBot.DB
 
             return productLists;
         }
+        //public Dictionary<int,ProductList> GetProductListsByIds(List<int> ids)
+        //{
+        //    Dictionary<int, List<ProductList>> dicProducts = new Dictionary<int, List<ProductList>>();
+        //    List<ProductList> Products = new List<ProductList>();
+        //    string idList = string.Empty;
+        //    CallDb callDb = new CallDb();
+
+        //    for (int i = 0; i < ids.Count; i++)
+        //    {
+        //        idList += ids[i];
+        //        if( i<ids.Count-1 )
+        //        {
+        //            idList += ",";
+        //        }
+        //    }
+
+        //    var productData = callDb.Select($"SELECT * FROM product_list WHERE is_used = 1 AND seller_id IN ({idList})");
+
+        //    foreach (DataRow data in productData.Tables[0].Rows)
+        //    {
+        //        Products.Add( new ProductList
+        //        {
+        //            id = int.Parse(data["id"].ToString()),
+        //            seller_id = int.Parse(data["seller_id"].ToString()),
+        //            thumbnail = data["thumbnail"].ToString(),
+        //            productUrl = data["productUrl"].ToString(),
+        //        });
+        //    }
+        //    dicProducts
+
+        //    return productLists;
+        //}
+
         public bool AddProductDetail(List<ProductDetail> productDetails)
         {
             CallDb callDb = new CallDb();
@@ -175,7 +224,6 @@ namespace EcoBot.DB
 
             return id;
         }
-
 
         public bool UpdateJobCrawlingDate(int id)
         {
