@@ -19,33 +19,44 @@ namespace EcoBot.Crawling
     {
         public void GetProductDetails()
         {
-            List<int> sellers = (new Repositories()).GetSellerIds();
+            List<int> sellers;
             List<ProductList> products = new List<ProductList>();
             List<ProductList> detailProducts;
             Dictionary<int, List<ProductList>> allPorducts = new Dictionary<int, List<ProductList>>();
-            for (int i = 0; i < sellers.Count; i++)
+            DateTime now;
+            for (; ; )
             {
-                products.AddRange((new Repositories()).GetProductListsById(i));
-            }
+                now = DateTime.Now;
 
-            for (int i = 0; i < sellers.Count; i++)
-            {
-                detailProducts = new List<ProductList>();
-                for (int j = 0; j < products.Count; j++)
+                if (now.Hour == 0 && now.Minute == 0)// 60초 내에 수집이 안끝나기 때문에 Second는 제거
                 {
-                    if (products[i].seller_id.Equals(sellers[i]))
+
+                    sellers = (new Repositories()).GetSellerIds();
+                    for (int i = 0; i < sellers.Count; i++)
                     {
-                        detailProducts.Add(products[i]);
+                        products.AddRange((new Repositories()).GetProductListsById(i));
                     }
+
+                    for (int i = 0; i < sellers.Count; i++)
+                    {
+                        detailProducts = new List<ProductList>();
+                        for (int j = 0; j < products.Count; j++)
+                        {
+                            if (products[i].seller_id.Equals(sellers[i]))
+                            {
+                                detailProducts.Add(products[i]);
+                            }
+                        }
+                        allPorducts.Add(sellers[i], detailProducts);
+                    }
+
+                    GetRepacDetail(allPorducts[1]);
+                    GetRegroundDetail(allPorducts[2]);
+                    GetLowlesDetail(allPorducts[3]);
+                    GetNeezmallDetail(allPorducts[4]);
+                    GetRichbowlDetail(allPorducts[5]);
                 }
-                allPorducts.Add(sellers[i], detailProducts);
             }
-                        
-            GetRepacDetail(allPorducts[1]);
-            GetRegroundDetail(allPorducts[2]);
-            GetLowlesDetail(allPorducts[3]);
-            GetNeezmallDetail(allPorducts[4]);
-            GetRichbowlDetail(allPorducts[5]);
         }
 
 
