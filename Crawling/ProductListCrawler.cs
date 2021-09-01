@@ -142,14 +142,6 @@ namespace EcoBot.Crawling
             }
         }
 
-        // productList를 실행하고, 데이터테이블(product_list)을 비교한다
-        // 잡테이블에서
-        // 셀러 아이디가 1인 애들중에
-        // productUrl을 비교해야해
-        // 데이터테이블(product_list)에 있으면 넘어가고 (추가하지않고)
-        // 데이터테이블(product_list)에 없으면 신규 추가한다.
-        // 근데 productList에 없으면 데이터테이블(product_list)에도 제거(노출을 안한다)한다.업데이트(is_used y,n)
-        // 일정 주기마다 반복한다.
 
         public void GetRepacUrl(string url, int sellerId)
         {
@@ -488,8 +480,8 @@ namespace EcoBot.Crawling
         {
             List<ProductList> deleteProducts = new List<ProductList>();
             int confirmCount = 0;
-            // 3.confirm에는 있는데 product의 url에는 없으면 데이터베이스에서 confirm에만 있는 데이터를 삭제
-            //confirm 리스트에 있는 값 - product 리스트에 있는 값 = (a)
+            // confirm에는 있는데 product의 url에는 없으면 데이터베이스에서 confirm에만 있는 데이터를 삭제
+           
             for (int i = 0; i < confirmProducts.Count; i++)
             {
                 confirmCount = 0;
