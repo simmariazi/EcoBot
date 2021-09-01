@@ -212,6 +212,8 @@ namespace EcoBot.Crawling
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(2);
             List<ProductDetail> productDetail = new List<ProductDetail>();
+            List<ProductDetail> confirmURL = (new Repositories()).GetProductDetailsURLById(2);
+            int ignore = 0;
             ProductDetail product;
             Detail details;
             List<string> options;
@@ -304,7 +306,17 @@ namespace EcoBot.Crawling
 
                         product.ecoCertifications = null;
 
-                        productDetail.Add(product);
+
+                        ignore = 0;
+                       
+                        if (confirmURL.Any(d => d.productUrl == product.productUrl))
+                        {
+                            ignore = 1;
+                        }
+                        if (ignore == 0)
+                        {
+                            productDetail.Add(product);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -343,6 +355,8 @@ namespace EcoBot.Crawling
             string error = string.Empty;
             ProductDetail productDetails = new ProductDetail();
             List<ProductDetail> products = new List<ProductDetail>();
+            List<ProductDetail> confirm = (new Repositories()).GetProductDetailsURLById(3);
+            int ignore = 0;
             using (IWebDriver driver = new ChromeDriver())
             {
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
@@ -400,12 +414,24 @@ namespace EcoBot.Crawling
                         // productdetails db에 product table에 insert 하기 
                         // Addproductdetail 함수 사용하여 sql data insert하기  
                         //productDetails.deliveryInfo = 
+                        ignore = 0;
+                       
+                        if (confirm.Any(d => d.productUrl == productDetails.productUrl))
+                        {
+                            ignore = 1;
+                        }
+
+                        if (ignore == 0)
+                        {
+                            products.Add(productDetails);
+                        }
+
                     }
                     catch (Exception ex)
                     {
                         error = ex.Message;
                     }
-                    products.Add(productDetails);
+                 
                 }
 
 
@@ -428,6 +454,8 @@ namespace EcoBot.Crawling
             string error = string.Empty;
             ProductDetail productDetails = new ProductDetail();
             List<ProductDetail> products = new List<ProductDetail>();
+            List<ProductDetail> confirm = (new Repositories()).GetProductDetailsURLById(4);
+            int ignore = 0;
             using (IWebDriver driver = new ChromeDriver())
             {
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(4);
@@ -502,12 +530,24 @@ namespace EcoBot.Crawling
                         productDetails.detail = new List<Detail>();
                         productDetails.detail.Add(details);
 
+                        ignore = 0;
+
+                        if (confirm.Any(d => d.productUrl == productDetails.productUrl))
+                        {
+                            ignore = 1;
+                        }
+
+                        if (ignore == 0)
+                        {
+                            products.Add(productDetails);
+                        }
+
                     }
                     catch (Exception ex)
                     {
                         error = ex.Message;
                     }
-                    products.Add(productDetails);
+                    
                 }
 
 
@@ -528,6 +568,8 @@ namespace EcoBot.Crawling
             string error = string.Empty;
             ProductDetail productDetails = new ProductDetail();
             List<ProductDetail> products = new List<ProductDetail>();
+            List<ProductDetail> confirm = (new Repositories()).GetProductDetailsURLById(5);
+            int ignore = 0;
             using (IWebDriver driver = new ChromeDriver())
             {
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
@@ -596,17 +638,53 @@ namespace EcoBot.Crawling
                         productDetails.detail = new List<Detail>();
                         productDetails.detail.Add(details);
 
+
+                        ignore = 0;
+
+                        if (confirm.Any(d => d.productUrl == productDetails.productUrl))
+                        {
+                            ignore = 1;
+                        }
+
+                        if (ignore == 0)
+                        {
+                            products.Add(productDetails);
+                        }
+
                     }
                     catch (Exception ex)
                     {
                         error = ex.Message;
                     }
-                    products.Add(productDetails);
+          
                 }
 
 
             }
-           (new Repositories()).AddProductDetail(products);
+            (new Repositories()).AddProductDetail(products);
         }
+
+
+        //private void ignoreTheSameProduct(ProductDetail productDetails)
+        //{
+        //    List<ProductDetail> confirmUrl = (new Repositories()).GetProductDetailsURLById(1);
+        //    // 레포지토리를 아이디 기준으로 가져오지 않고 전체 URL을 수집한다.
+
+        //    List<ProductDetail> AddData = new List<ProductDetail>();
+        //    int ignore = 0;
+
+        //    ignore = 0; 
+        //    if (confirmUrl.Any(d => d.productUrl == productDetails.productUrl))
+        //    {
+        //        ignore = 1;
+        //    }
+
+        //    if (ignore == 0)
+        //    {
+        //        AddData.Add(productDetails);
+        //    }
+        //    //AddData를 
+        //    (new Repositories()).AddProductDetail(AddData);
+        //}
     }
 }

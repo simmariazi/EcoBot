@@ -13,12 +13,12 @@ namespace EcoBot
             //productListCrawler.RepacUrl();
             //productListCrawler.RegroundUrl();
             //productListCrawler.LowlesUrl();
-            productdetailCrawler.GetRepacUrl();
+            //productdetailCrawler.GetRepacUrl();
             //productdetailCrawler.GetRegroundUrl();
             //productdetailCrawler.GetLowlesDetail();
             //productdetailCrawler.GetNeezmallUrl();
             //productdetailCrawler.GetRichbowlUrl();
-            //productListCrawler.BaseUrl();
+            productListCrawler.BaseUrl();
 
             Thread tread_0 = new Thread(() => productListCrawler.BaseUrl());
             Thread tread_1 = new Thread(() => productdetailCrawler.GetProductDetails());
