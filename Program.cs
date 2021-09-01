@@ -12,11 +12,11 @@ namespace EcoBot
             //productListCrawler.RepacUrl();
             //productListCrawler.RegroundUrl();
             //productListCrawler.LowlesUrl();
-            //productdetailCrawler.GetProductUrl();
+            productdetailCrawler.GetRepacUrl();
             //productdetailCrawler.GetRegroundUrl();
             //productdetailCrawler.GetLowlesDetail();
             //productdetailCrawler.GetNeezmallUrl();
-            productdetailCrawler.GetRichbowlUrl();
+            //productdetailCrawler.GetRichbowlUrl();
             //productListCrawler.BaseUrl();
 
         }

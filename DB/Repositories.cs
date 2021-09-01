@@ -148,6 +148,27 @@ namespace EcoBot.DB
 
             return productLists;
         }
+
+
+        public List<ProductDetail> GetProductDetailsURLById(int id)
+        {
+            List<ProductDetail> productDetails = new List<ProductDetail>();
+
+            CallDb callDb = new CallDb();
+
+            var productData = callDb.Select($"SELECT * FROM product WHERE seller_id = {id}");
+
+            foreach (DataRow data in productData.Tables[0].Rows)
+            {
+                productDetails.Add(new ProductDetail
+                {
+                    sellerId = int.Parse(data["seller_id"].ToString()),                  
+                    productUrl = data["product_url"].ToString(),
+                });
+            }
+
+            return productDetails;
+        }
         //public Dictionary<int,ProductList> GetProductListsByIds(List<int> ids)
         //{
         //    Dictionary<int, List<ProductList>> dicProducts = new Dictionary<int, List<ProductList>>();

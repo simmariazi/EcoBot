@@ -83,6 +83,7 @@ namespace EcoBot.Crawling
             string error = string.Empty;
             ProductDetail productDetails = new ProductDetail();
             List<ProductDetail> products = new List<ProductDetail>();
+            List<ProductDetail> confirm = (new Repositories()).GetProductDetailsURLById(1);
             using (IWebDriver driver = new ChromeDriver())
             {
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
@@ -157,14 +158,34 @@ namespace EcoBot.Crawling
                         // productdetails db에 product table에 insert 하기 
                         // Addproductdetail 함수 사용하여 sql data insert하기  
                         //productDetails.deliveryInfo = 
+
+                        int ignore = 0;
+                        for (int index = 0; index < confirm.Count; index++)
+                        {
+                            // 둘다 있어 > 추가하지않고 넘어감
+                            if (productDetails.productUrl == confirm[index].productUrl)
+                            {
+                                ignore = 1;
+                                break;
+                            }
+                        }
+
+                        //데이터테이블(product_list)에 없으면 신규 추가한다.
+                        if (ignore == 0)
+                        {
+                            products.Add(productDetails);
+                        }
                     }
+
                     catch (Exception ex)
                     {
                         error = ex.Message;
                     }
-                    products.Add(productDetails);
-                }
 
+                 
+
+                }
+               
 
             }
             (new Repositories()).AddProductDetail(products);
