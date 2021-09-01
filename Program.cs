@@ -17,7 +17,7 @@ namespace EcoBot
             //productdetailCrawler.GetRegroundUrl();
             //productdetailCrawler.GetLowlesDetail();
             //productdetailCrawler.GetNeezmallUrl();
-            productdetailCrawler.GetRichbowlUrl();
+            //productdetailCrawler.GetRichbowlUrl();
             //productListCrawler.BaseUrl();
 
             Thread tread_0 = new Thread(() => productListCrawler.BaseUrl());
