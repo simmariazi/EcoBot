@@ -84,6 +84,7 @@ namespace EcoBot.Crawling
             ProductDetail productDetails = new ProductDetail();
             List<ProductDetail> products = new List<ProductDetail>();
             List<ProductDetail> confirm = (new Repositories()).GetProductDetailsURLById(1);
+            int ignore = 0;
             using (IWebDriver driver = new ChromeDriver())
             {
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
@@ -159,16 +160,22 @@ namespace EcoBot.Crawling
                         // Addproductdetail 함수 사용하여 sql data insert하기  
                         //productDetails.deliveryInfo = 
 
-                        int ignore = 0;
-                        for (int index = 0; index < confirm.Count; index++)
+                        ignore = 0;
+                        // Confirm에 productDetails.productUrl이 포함되어 있으면 ignore = 0
+                        if (confirm.Any(d => d.productUrl == productDetails.productUrl))
                         {
-                            // 둘다 있어 > 추가하지않고 넘어감
-                            if (productDetails.productUrl == confirm[index].productUrl)
-                            {
-                                ignore = 1;
-                                break;
-                            }
+                            ignore = 1;
                         }
+
+                        //for (int index = 0; index < confirm.Count; index++)
+                        //{
+                        //    // 둘다 있어 > 추가하지않고 넘어감
+                        //    if (productDetails.productUrl == confirm[index].productUrl)
+                        //    {
+                        //        ignore = 1;
+                        //        break;
+                        //    }
+                        //}
 
                         //데이터테이블(product_list)에 없으면 신규 추가한다.
                         if (ignore == 0)
@@ -182,10 +189,10 @@ namespace EcoBot.Crawling
                         error = ex.Message;
                     }
 
-                 
+
 
                 }
-               
+
 
             }
             (new Repositories()).AddProductDetail(products);
