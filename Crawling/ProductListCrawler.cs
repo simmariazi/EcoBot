@@ -487,7 +487,7 @@ namespace EcoBot.Crawling
                 confirmCount = 0;
                 for (int j = 0; j < products.Count; j++)
                 {
-                    if (confirmProducts[i].productUrl.Equals(confirmProducts[j].productUrl))
+                    if (confirmProducts[i].productUrl.Equals(products[j].productUrl))
                     {
                         confirmCount++;
                     }

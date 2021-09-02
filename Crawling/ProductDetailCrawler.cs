@@ -42,9 +42,9 @@ namespace EcoBot.Crawling
                         detailProducts = new List<ProductList>();
                         for (int j = 0; j < products.Count; j++)
                         {
-                            if (products[i].seller_id.Equals(sellers[i]))
+                            if (products[j].seller_id.Equals(sellers[i]))
                             {
-                                detailProducts.Add(products[i]);
+                                detailProducts.Add(products[j]);
                             }
                         }
                         allPorducts.Add(sellers[i], detailProducts);
@@ -217,6 +217,9 @@ namespace EcoBot.Crawling
             ProductDetail product;
             Detail details;
             List<string> options;
+            HtmlNode OriginData;
+            HtmlNode deliveryTimeData;
+
             using (IWebDriver driver = new ChromeDriver())
             {
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
@@ -256,7 +259,18 @@ namespace EcoBot.Crawling
                         details = new Detail();
                         details.brand = "리그라운드";
                         details.Manufacturer = "리그라운드";
-                        details.Origin = productDocument.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[1]/div[2]/span").InnerText;
+
+                        OriginData = productDocument.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[1]/div[2]/span");
+                        if (OriginData == null)
+                        {
+                            details.Origin = "정보없음";
+                            
+                        }
+                        else
+                        {
+
+                            details.Origin = OriginData.InnerText;
+                        }
 
 
                         //추가 필요
@@ -276,7 +290,20 @@ namespace EcoBot.Crawling
                         product.price = int.Parse(productDocument.SelectSingleNode("//span[@class='real_price']").InnerText.Replace(",", "").Replace("원", ""));
                         product.description = productDocument.SelectSingleNode("//*[@class='detail_detail_wrap ']").InnerHtml.Replace("'", "").Trim();
 
-                        product.deliveryTime = productDocument.SelectSingleNode("//div[@class='type01']/strong").InnerText.Trim();
+                        //product.deliveryTime = productDocument.SelectSingleNode("//div[@class='type01']/strong").InnerText.Trim();
+                        deliveryTimeData = productDocument.SelectSingleNode("//div[@class='type01']/strong");
+                        if (deliveryTimeData == null)
+                        {
+                            product.deliveryTime = "정보없음";
+                        }
+                        else
+                        {
+                            product.deliveryTime = deliveryTimeData.InnerText.Trim();
+                        }
+
+
+
+
                         product.shippingFee = productDocument.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[6]/div[2]/span").InnerText;
                         product.shippingFee = product.shippingFee.Replace("popover", "").Trim();
 
