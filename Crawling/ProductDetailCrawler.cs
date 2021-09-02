@@ -15,7 +15,7 @@ using System.Threading;
 
 namespace EcoBot.Crawling
 {
-    public class ProductDetailCrawler : BaseCrawler
+    public class ProductDetailCrawler
     {
         public void GetProductDetails()
         {

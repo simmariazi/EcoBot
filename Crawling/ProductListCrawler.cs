@@ -15,7 +15,7 @@ using OpenQA.Selenium.Chrome;
 
 namespace EcoBot.Crawling
 {
-    public class ProductListCrawler : BaseCrawler
+    public class ProductListCrawler
     {
         //잡 테이블에 있는 데이터불러오기
 
@@ -143,7 +143,7 @@ namespace EcoBot.Crawling
         }
 
 
-        public void GetRepacUrl(string url, int sellerId)
+        private void GetRepacUrl(string url, int sellerId)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(1);
             List<ProductList> productList = new List<ProductList>();
@@ -201,7 +201,7 @@ namespace EcoBot.Crawling
         }
 
 
-        public void GetRegroundUrl(string url, int sellerId)
+        private void GetRegroundUrl(string url, int sellerId)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(2);
             List<ProductList> productList = new List<ProductList>();
@@ -266,7 +266,7 @@ namespace EcoBot.Crawling
             (new Repositories()).AddProductList(productList);
         }
 
-        public void GetLowlesUrl(string url, int sellerId)
+        private void GetLowlesUrl(string url, int sellerId)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(3);
             List<ProductList> productList = new List<ProductList>();
@@ -328,7 +328,7 @@ namespace EcoBot.Crawling
         }
 
 
-        public void GetNeezmallUrl(string url, int sellerId)
+        private void GetNeezmallUrl(string url, int sellerId)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(4);
             List<ProductList> productList = new List<ProductList>();
@@ -417,7 +417,7 @@ namespace EcoBot.Crawling
 
 
 
-        public void GetRichbowlUrl(string url, int sellerId)
+        private void GetRichbowlUrl(string url, int sellerId)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(5);
             List<ProductList> productList = new List<ProductList>();
