@@ -78,7 +78,7 @@ namespace EcoBot.Crawling
         /// <param name="productInfo"> 상품정보 </param>
         /// <param name="url">상세페이지 url</param>
         /// <param name="InnerText"> 세부정보 </param>
-        public void GetRepacDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
+        private void GetRepacDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
         {
             string error = string.Empty;
             ProductDetail productDetails = new ProductDetail();
@@ -208,7 +208,7 @@ namespace EcoBot.Crawling
             return products;
         }
 
-        public void GetRegroundDetail(List<ProductList> products)
+        private void GetRegroundDetail(List<ProductList> products)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(2);
             List<ProductDetail> productDetail = new List<ProductDetail>();
@@ -245,7 +245,7 @@ namespace EcoBot.Crawling
                         var productDocument = document.DocumentNode.SelectSingleNode(productNodeXpath);
                         if (productDocument == null)
                         {
-                            Thread.Sleep(500);
+                            Thread.Sleep(1500);
                             productDocument = document.DocumentNode.SelectSingleNode(productNodeXpath);
 
                             if (productDocument == null)
@@ -377,7 +377,7 @@ namespace EcoBot.Crawling
         /// <param name="productInfo"> 상품정보 </param>
         /// <param name="url">상세페이지 url</param>
         /// <param name="InnerText"> 세부정보 </param>
-        public void GetLowlesDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
+        private void GetLowlesDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
         {
             string error = string.Empty;
             ProductDetail productDetails = new ProductDetail();
@@ -476,7 +476,7 @@ namespace EcoBot.Crawling
         }
 
 
-        public void GetNeezmallDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
+        private void GetNeezmallDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
         {
             string error = string.Empty;
             ProductDetail productDetails = new ProductDetail();
@@ -590,7 +590,7 @@ namespace EcoBot.Crawling
 
             return products;
         }
-        public void GetRichbowlDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
+        private void GetRichbowlDetail(List<ProductList> product) // 원래 product url, seller_id 가 get detail 인풋 파라미터에 있었음
         {
             string error = string.Empty;
             ProductDetail productDetails = new ProductDetail();

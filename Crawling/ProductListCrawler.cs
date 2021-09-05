@@ -26,7 +26,7 @@ namespace EcoBot.Crawling
 
             for (int i = 0; i < jobs.Count; i++)
             {
-                GetRepacUrl(jobs[i].url, jobs[i].seller_id);
+                GetRepacUrl(jobs[i].url, jobs[i].seller_id, jobs[i].category_id);
             }
         }
 
@@ -36,7 +36,7 @@ namespace EcoBot.Crawling
 
             for (int i = 0; i < jobs.Count; i++)
             {
-                GetRegroundUrl(jobs[i].url, jobs[i].seller_id);
+                GetRegroundUrl(jobs[i].url, jobs[i].seller_id, jobs[i].category_id);
             }
         }
 
@@ -46,7 +46,7 @@ namespace EcoBot.Crawling
 
             for (int i = 0; i < jobs.Count; i++)
             {
-                GetLowlesUrl(jobs[i].url, jobs[i].seller_id);
+                GetLowlesUrl(jobs[i].url, jobs[i].seller_id, jobs[i].category_id);
             }
         }
 
@@ -57,7 +57,7 @@ namespace EcoBot.Crawling
 
             for (int i = 0; i < jobs.Count; i++)
             {
-                GetNeezmallUrl(jobs[i].url, jobs[i].seller_id);
+                GetNeezmallUrl(jobs[i].url, jobs[i].seller_id, jobs[i].category_id);
             }
         }
 
@@ -68,7 +68,7 @@ namespace EcoBot.Crawling
 
             for (int i = 0; i < jobs.Count; i++)
             {
-                GetRichbowlUrl(jobs[i].url, jobs[i].seller_id);
+                GetRichbowlUrl(jobs[i].url, jobs[i].seller_id, jobs[i].category_id);
             }
         }
 
@@ -98,7 +98,7 @@ namespace EcoBot.Crawling
                         {
                             continue;
                         }
-                        GetRepacUrl(jobs[i].url, jobs[i].seller_id);
+                        GetRepacUrl(jobs[i].url, jobs[i].seller_id, jobs[i].category_id);
                         //수집시간을 [잡_라스트 크롤링 데이트]에 인서트
                         (new Repositories()).UpdateJobCrawlingDate(jobs[i].id);
                     }
@@ -108,7 +108,7 @@ namespace EcoBot.Crawling
                         {
                             continue;
                         }
-                        GetRegroundUrl(jobs[i].url, jobs[i].seller_id);
+                        GetRegroundUrl(jobs[i].url, jobs[i].seller_id, jobs[i].category_id);
                         (new Repositories()).UpdateJobCrawlingDate(jobs[i].id);
                     }
                     else if (jobs[i].seller_id == 3)
@@ -117,7 +117,7 @@ namespace EcoBot.Crawling
                         {
                             continue;
                         }
-                        GetLowlesUrl(jobs[i].url, jobs[i].seller_id);
+                        GetLowlesUrl(jobs[i].url, jobs[i].seller_id, jobs[i].category_id);
                         (new Repositories()).UpdateJobCrawlingDate(jobs[i].id);
                     }
                     else if (jobs[i].seller_id == 4)
@@ -126,7 +126,7 @@ namespace EcoBot.Crawling
                         {
                             continue;
                         }
-                        GetNeezmallUrl(jobs[i].url, jobs[i].seller_id);
+                        GetNeezmallUrl(jobs[i].url, jobs[i].seller_id, jobs[i].category_id);
                         (new Repositories()).UpdateJobCrawlingDate(jobs[i].id);
                     }
                     else if (jobs[i].seller_id == 5)
@@ -135,7 +135,7 @@ namespace EcoBot.Crawling
                         {
                             continue;
                         }
-                        GetRichbowlUrl(jobs[i].url, jobs[i].seller_id);
+                        GetRichbowlUrl(jobs[i].url, jobs[i].seller_id, jobs[i].category_id);
                         (new Repositories()).UpdateJobCrawlingDate(jobs[i].id);
                     }
                 }
@@ -143,7 +143,7 @@ namespace EcoBot.Crawling
         }
 
 
-        private void GetRepacUrl(string url, int sellerId)
+        private void GetRepacUrl(string url, int sellerId, int categoryId)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(1);
             List<ProductList> productList = new List<ProductList>();
@@ -171,6 +171,8 @@ namespace EcoBot.Crawling
                             thumbnail = products[j].SelectNodes("//img[@class='_org_img org_img _lazy_img']")[j].GetAttributeValue("src", ""),
                             productUrl = "https://repac.co.kr" + products[j].SelectNodes("//div[@class='item-wrap']/a")[j].GetAttributeValue("href", ""),
                             seller_id = sellerId,
+                            category_id = categoryId,
+
                         };
                         int ignore = 0;
                         for (int i = 0; i < confirm.Count; i++)
@@ -201,7 +203,7 @@ namespace EcoBot.Crawling
         }
 
 
-        private void GetRegroundUrl(string url, int sellerId)
+        private void GetRegroundUrl(string url, int sellerId,int categoryId)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(2);
             List<ProductList> productList = new List<ProductList>();
@@ -232,6 +234,7 @@ namespace EcoBot.Crawling
                             thumbnail = products[j].SelectNodes("//img[@class='_org_img org_img _lazy_img']")[j].GetAttributeValue("data-src", ""),
                             productUrl = "https://re-ground.co.kr/" + products[j].SelectNodes("//div[@class='item-thumbs']/a")[j].GetAttributeValue("href", ""),
                             seller_id = sellerId,
+                            category_id = categoryId,
                         };
                         if (!product.thumbnail.Contains("http"))
                         {
@@ -266,7 +269,7 @@ namespace EcoBot.Crawling
             (new Repositories()).AddProductList(productList);
         }
 
-        private void GetLowlesUrl(string url, int sellerId)
+        private void GetLowlesUrl(string url, int sellerId, int categoryId)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(3);
             List<ProductList> productList = new List<ProductList>();
@@ -298,6 +301,7 @@ namespace EcoBot.Crawling
                             thumbnail = products[j].SelectNodes("//img[@class='hover']")[j].GetAttributeValue("src", ""),
                             productUrl = "https://lowles.kr" + products[j].SelectNodes("//div[@class='thumbnail']/a")[j].GetAttributeValue("href", ""),
                             seller_id = sellerId,
+                            category_id = categoryId,
                         };
                         int ignore = 0;
                         for (int i = 0; i < confirm.Count; i++)
@@ -328,7 +332,7 @@ namespace EcoBot.Crawling
         }
 
 
-        private void GetNeezmallUrl(string url, int sellerId)
+        private void GetNeezmallUrl(string url, int sellerId, int categoryId)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(4);
             List<ProductList> productList = new List<ProductList>();
@@ -383,6 +387,7 @@ namespace EcoBot.Crawling
                                 thumbnail = products[j].SelectNodes("//img[@class='_wtfull']")[j].GetAttributeValue("src", ""),
                                 productUrl = "https://www.neezmall.com/" + products[j].SelectNodes("//a[@class='pdLink']")[j].GetAttributeValue("href", ""),
                                 seller_id = sellerId,
+                                category_id = categoryId,
                             };
 
                             int ignore = 0;
@@ -417,7 +422,7 @@ namespace EcoBot.Crawling
 
 
 
-        private void GetRichbowlUrl(string url, int sellerId)
+        private void GetRichbowlUrl(string url, int sellerId, int categoryId)
         {
             List<ProductList> confirm = (new Repositories()).GetProductListsById(5);
             List<ProductList> productList = new List<ProductList>();
@@ -447,6 +452,8 @@ namespace EcoBot.Crawling
                             thumbnail = products[j].SelectNodes("//a[@class='sct_a']/img")[j].GetAttributeValue("src", ""),
                             productUrl = products[j].SelectNodes("//a[@class='sct_a']")[j].GetAttributeValue("href", ""),
                             seller_id = sellerId,
+                            category_id=  categoryId,
+
                         };
                         int ignore = 0;
                         for (int i = 0; i < confirm.Count; i++)

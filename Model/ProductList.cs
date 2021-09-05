@@ -27,5 +27,7 @@ namespace EcoBot
         public string productUrl { get; set; }
         public int id { get; set; }
         public int seller_id { get; set; }
+
+        public int category_id { get; set; }
     }
 }
