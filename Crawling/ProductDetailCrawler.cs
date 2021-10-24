@@ -154,6 +154,8 @@ namespace EcoBot.Crawling
 
 
                         // 숫자 가져오는 정규식 문법 regex 사용
+                        
+                        
                         productDetails.shippingFee = document.DocumentNode.SelectSingleNode("//span[contains(text(),'배송비')]/parent::div/parent::div/div/span[contains(@class, 'option_data')]").InnerText;
                         productDetails.shippingFee = productDetails.shippingFee.Replace("popover", "");
 
@@ -277,7 +279,7 @@ namespace EcoBot.Crawling
                         if (OriginData == null)
                         {
                             details.Origin = "정보없음";
-                            
+
                         }
                         else
                         {
@@ -286,14 +288,14 @@ namespace EcoBot.Crawling
                         }
 
 
-                        //추가 필요
                         product.id = products[i].id;
                         product.sellerId = products[i].seller_id;
                         product.productUrl = products[i].productUrl;
                         product.status = 1;
 
+
                         product.brandName = "리그라운드";
-                        product.name = productDocument.SelectSingleNode("//div[@class='view_tit no-margin-top ']").InnerText.Trim();
+                        product.name = productDocument.SelectSingleNode("//div[@class='view_tit no-margin-top title_font_style ']").InnerText.Trim();
                         if (product.name.Contains("SOLDOUT"))
                         {
                             product.status = 0;
@@ -301,8 +303,16 @@ namespace EcoBot.Crawling
                         }
                         else
                         {
-                            product.shippingFee = productDocument.SelectSingleNode("//*[@id='prod_goods_form']/div[3]/div/div[1]/div[6]/div[2]/span").InnerText;
-                            product.shippingFee = product.shippingFee.Replace("popover", "").Trim();
+                            if (productDocument.SelectSingleNode("//div/span[contains(text(),'배송비')]/parent::div/parent::div/div[2]/span") == null)
+                            {
+                                product.shippingFee = "상세페이지 참조";
+                            }
+                            else
+                            {
+                                product.shippingFee = productDocument.SelectSingleNode("//div/span[contains(text(),'배송비')]/parent::div/parent::div/div[2]/span").InnerText;
+                                //product.shippingFee = product.shippingFee.Replace("popover", "").Trim();
+                            }
+
                         }
 
                         product.mainImage = productDocument.SelectSingleNode("//div[@class='item _item']/img").GetAttributeValue("src", "");
@@ -352,7 +362,7 @@ namespace EcoBot.Crawling
 
 
                         ignore = 0;
-                       
+
                         if (confirmURL.Any(d => d.productUrl == product.productUrl))
                         {
                             ignore = 1;
@@ -415,7 +425,7 @@ namespace EcoBot.Crawling
                         HtmlDocument document = new HtmlDocument();
                         document.LoadHtml(driver.PageSource);
                         productDetails.id = product[i].id;
-                        productDetails.name = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[3]/div/div[1]/div[2]/div[1]/h2").InnerText;
+                        productDetails.name = document.DocumentNode.SelectSingleNode("//meta[@property='og:title']").GetAttributeValue("content", "");
                         productDetails.mainImage = "https:" + product[i].thumbnail;
                         productDetails.productCode = document.DocumentNode.SelectSingleNode("//a[@class='size_guide_info']").GetAttributeValue("product_no", "");
                         productDetails.description = document.DocumentNode.SelectSingleNode("//div[@id='prdDetail']/div").InnerHtml;
@@ -439,8 +449,10 @@ namespace EcoBot.Crawling
                         }
                         productDetails.option.Add(0, option); // 0은 사이즈
 
-                        productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[6]").InnerText;
-                        productDetails.shippingFee = document.DocumentNode.SelectSingleNode("//*[@id='wide_contents']/div[4]/div[3]/div[1]/div[2]/text()[5]").InnerText;
+                        productDetails.deliveryTime = document.DocumentNode.SelectSingleNode("//div[contains(text(),'배송 안내')]/parent::div/div[2]/text()[6]").InnerText;
+                        productDetails.deliveryTime = productDetails.deliveryTime.Replace("배송기간:", "").Trim();
+                        productDetails.shippingFee = document.DocumentNode.SelectSingleNode("//div[contains(text(),'배송 안내')]/parent::div/div[2]/text()[5]").InnerText;
+                        productDetails.shippingFee = productDetails.shippingFee.Replace("배송비용:", "").Trim();
 
 
                         //디테일 수정필요 
@@ -459,7 +471,7 @@ namespace EcoBot.Crawling
                         // Addproductdetail 함수 사용하여 sql data insert하기  
                         //productDetails.deliveryInfo = 
                         ignore = 0;
-                       
+
                         if (confirm.Any(d => d.productUrl == productDetails.productUrl))
                         {
                             ignore = 1;
@@ -475,7 +487,7 @@ namespace EcoBot.Crawling
                     {
                         error = ex.Message;
                     }
-                 
+
                 }
 
 
@@ -591,7 +603,7 @@ namespace EcoBot.Crawling
                     {
                         error = ex.Message;
                     }
-                    
+
                 }
 
 
@@ -700,7 +712,7 @@ namespace EcoBot.Crawling
                     {
                         error = ex.Message;
                     }
-          
+
                 }
 
 
